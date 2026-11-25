@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Fiche {{ courrier.reference }}</title>
+    <style>
+        body { font-family: Georgia, serif; margin: 40px; color: #111; }
+        h1 { font-size: 22px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+<button class="no-print" onclick="window.print()">Imprimer</button>
+<h1>Fiche courrier — {{ courrier.reference }}</h1>
+<table>
+    <tr><th>Objet</th><td>{{ courrier.objet }}</td></tr>
+    <tr><th>Type</th><td>{{ courrier.type.label }}</td></tr>
+    <tr><th>Statut</th><td>{{ courrier.statut.label }}</td></tr>
+    <tr><th>Expéditeur</th><td>{{ courrier.expediteur }}</td></tr>
+    <tr><th>Destinataire</th><td>{{ courrier.destinataire }}</td></tr>
+    <tr><th>Priorité</th><td>{{ courrier.priorite.label }}</td></tr>
+    <tr><th>Confidentialité</th><td>{{ courrier.confidentialite.label }}</td></tr>
+    <tr><th>Date enregistrement</th><td>{{ courrier.dateEnregistrement|date('d/m/Y H:i') }}</td></tr>
+    <tr><th>Description</th><td>{{ courrier.description }}</td></tr>
+</table>
+</body>
+</html>

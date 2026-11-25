@@ -1,0 +1,31 @@
+{% extends 'layouts/app.html.twig' %}
+{% set pageHeading = 'Paramètres' %}
+{% block title %}Paramètres | SGEC{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <h1 class="page-title">Paramètres système</h1>
+        <p class="muted mb-0">Consultez les valeurs de configuration de l’application.</p>
+    </div>
+    <a href="{{ path('app_parametre_new') }}" class="btn btn-primary"><i class="bi bi-plus-lg me-2"></i>Ajouter un paramètre</a>
+</div>
+<div class="panel">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead><tr><th>Clé</th><th>Valeur</th><th>Description</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for p in parametres %}
+                <tr>
+                    <td><code>{{ p.cle }}</code></td>
+                    <td>{{ p.valeur }}</td>
+                    <td>{{ p.description ?: '—' }}</td>
+                    <td><a href="{{ path('app_parametre_edit', {id: p.id}) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil me-1"></i>Modifier</a></td>
+                </tr>
+            {% else %}
+                <tr><td colspan="4" class="empty-state">Aucun paramètre configuré.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

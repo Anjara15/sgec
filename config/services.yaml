@@ -1,0 +1,14 @@
+parameters:
+    app.upload_dir: '%kernel.project_dir%/public/uploads/pieces_jointes'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+
+    App\Service\PieceJointeUploader:
+        arguments:
+            $targetDirectory: '%app.upload_dir%'

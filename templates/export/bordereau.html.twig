@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Bordereau — {{ courrier.reference }}</title>
+    <style>body{font-family:Arial,sans-serif;margin:40px} table{width:100%;border-collapse:collapse} th,td{border:1px solid #999;padding:8px}</style>
+</head>
+<body>
+<button onclick="window.print()">Imprimer</button>
+<h1>Bordereau de transmission</h1>
+<p>Référence : <strong>{{ courrier.reference }}</strong></p>
+<table>
+    <tr><th>Expéditeur</th><td>{{ courrier.expediteur }}</td></tr>
+    <tr><th>Destinataire</th><td>{{ courrier.destinataire }}</td></tr>
+    <tr><th>Service origine</th><td>{{ courrier.serviceOrigine }}</td></tr>
+    <tr><th>Service destinataire</th><td>{{ courrier.serviceDestinataire }}</td></tr>
+    <tr><th>Pièces jointes</th><td>{{ courrier.piecesJointes|length }}</td></tr>
+</table>
+<h3>Historique des transmissions</h3>
+<table>
+    <thead><tr><th>Date</th><th>De</th><th>Vers</th><th>État</th></tr></thead>
+    <tbody>
+    {% for t in courrier.transmissions %}
+        <tr>
+            <td>{{ t.dateTransmission|date('d/m/Y H:i') }}</td>
+            <td>{{ t.expediteur }}</td>
+            <td>{{ t.destinataire }}</td>
+            <td>{{ t.etat.label }}</td>
+        </tr>
+    {% else %}
+        <tr><td colspan="4">Aucune transmission</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>

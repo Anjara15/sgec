@@ -1,0 +1,157 @@
+{% extends 'layouts/app.html.twig' %}
+{% set pageHeading = courrier.reference %}
+{% block title %}{{ courrier.reference }} | SGEC{% endblock %}
+
+{% block content %}
+<div class="page-heading courrier-heading">
+    <div>
+        <h1 class="page-title">{{ courrier.reference }}</h1>
+        <p class="muted mb-2">{{ courrier.objet }}</p>
+        <span class="badge-status {{ courrier.statut.badgeClass }}">{{ courrier.statut.label }}</span>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{{ path('app_courrier_print', {id: courrier.id}) }}" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener"><i class="bi bi-printer me-1"></i>Imprimer</a>
+        <a href="{{ path('app_export_accuse', {id: courrier.id}) }}" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener"><i class="bi bi-file-earmark-check me-1"></i>Accusé</a>
+        <a href="{{ path('app_export_bordereau', {id: courrier.id}) }}" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener"><i class="bi bi-file-earmark-text me-1"></i>Bordereau</a>
+        {% if is_granted('ROLE_AGENT_COURRIER') and not courrier.archive %}
+            <a href="{{ path('app_courrier_edit', {id: courrier.id}) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil me-1"></i>Modifier</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="panel">
+            <div class="panel-header"><h5>Informations</h5></div>
+            <div class="p-3">
+                <dl class="row courrier-metadata mb-0">
+                    <dt class="col-sm-4">Type</dt><dd class="col-sm-8">{{ courrier.type.label }}</dd>
+                    <dt class="col-sm-4">Priorité</dt><dd class="col-sm-8">{{ courrier.priorite.label }}</dd>
+                    <dt class="col-sm-4">Confidentialité</dt><dd class="col-sm-8">{{ courrier.confidentialite.label }}</dd>
+                    <dt class="col-sm-4">Expéditeur</dt><dd class="col-sm-8">{{ courrier.expediteur }}</dd>
+                    <dt class="col-sm-4">Destinataire</dt><dd class="col-sm-8">{{ courrier.destinataire }}</dd>
+                    <dt class="col-sm-4">Service origine</dt><dd class="col-sm-8">{{ courrier.serviceOrigine ?: '—' }}</dd>
+                    <dt class="col-sm-4">Service destinataire</dt><dd class="col-sm-8">{{ courrier.serviceDestinataire ?: '—' }}</dd>
+                    <dt class="col-sm-4">Créateur</dt><dd class="col-sm-8">{{ courrier.createur }}</dd>
+                    <dt class="col-sm-4">Agent responsable</dt><dd class="col-sm-8">{{ courrier.agentResponsable ?: '—' }}</dd>
+                    <dt class="col-sm-4">Date document</dt><dd class="col-sm-8">{{ courrier.dateDocument ? courrier.dateDocument|date('d/m/Y') : '—' }}</dd>
+                    <dt class="col-sm-4">Enregistrement</dt><dd class="col-sm-8">{{ courrier.dateEnregistrement|date('d/m/Y H:i') }}</dd>
+                    <dt class="col-sm-4">Description</dt><dd class="col-sm-8">{{ courrier.description ?: '—' }}</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header"><h5>Pièces jointes</h5></div>
+            <ul class="list-group list-group-flush">
+                {% for p in courrier.piecesJointes %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>{{ p.nomOriginal }} <small class="muted">({{ (p.taille / 1024)|number_format(1) }} Ko)</small></span>
+                        <a href="{{ path('app_piece_download', {id: p.id}) }}">Télécharger</a>
+                    </li>
+                {% else %}
+                    <li class="list-group-item muted">Aucune pièce jointe</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header"><h5>Historique du traitement</h5></div>
+            <div class="courrier-timeline">
+                {% for h in courrier.historiquesStatut|reverse %}
+                    <article class="timeline-event">
+                        <span class="timeline-marker" aria-hidden="true"><i class="bi bi-check2"></i></span>
+                        <div class="timeline-event-title">{{ h.nouveauStatut.label }}</div>
+                        <div class="timeline-event-meta">{{ h.dateChangement|date('d/m/Y H:i') }} · {{ h.auteur }}</div>
+                        <div class="small mt-1">
+                            {{ h.ancienStatut.label }} <i class="bi bi-arrow-right mx-1" aria-hidden="true"></i> {{ h.nouveauStatut.label }}
+                        </div>
+                        {% if h.motif %}
+                            <div class="small muted mt-1">{{ h.motif }}</div>
+                        {% endif %}
+                    </article>
+                {% else %}
+                    <p class="muted small mb-0 py-2">Aucun changement de statut enregistré.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        {% if is_granted('ROLE_AGENT_COURRIER') and courrier.statut.value in ['enregistre','a_corriger','brouillon'] %}
+            <div class="panel p-3 mb-3">
+                <h5 class="mb-3">Validation</h5>
+                <form method="post" action="{{ path('app_courrier_soumettre', {id: courrier.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('soumettre' ~ courrier.id) }}">
+                    <button class="btn btn-primary w-100" type="submit">Soumettre à validation</button>
+                </form>
+            </div>
+        {% endif %}
+
+        {% if is_granted('ROLE_RESPONSABLE') and courrier.statut.value == 'en_validation' %}
+            <div class="panel p-3 mb-3">
+                <h5 class="mb-3">Décision</h5>
+                {{ form_start(validationForm, {action: path('app_courrier_valider', {id: courrier.id})}) }}
+                    {{ form_row(validationForm.motif) }}
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-success" name="action" value="approuver" type="submit">Approuver</button>
+                        <button class="btn btn-warning" name="action" value="corriger" type="submit">Demander correction</button>
+                        <button class="btn btn-danger" name="action" value="rejeter" type="submit">Rejeter</button>
+                    </div>
+                {{ form_end(validationForm) }}
+            </div>
+        {% endif %}
+
+        {% if is_granted('ROLE_AGENT_COURRIER') and courrier.statut.value in ['valide','recu'] %}
+            <div class="panel p-3 mb-3">
+                <h5 class="mb-3">Transmission</h5>
+                {{ form_start(transmissionForm, {action: path('app_courrier_transmettre', {id: courrier.id})}) }}
+                    {{ form_row(transmissionForm.destinataire) }}
+                    {{ form_row(transmissionForm.commentaire) }}
+                    <button class="btn btn-outline-primary w-100" type="submit">Transmettre</button>
+                {{ form_end(transmissionForm) }}
+            </div>
+        {% endif %}
+
+        {% if is_granted('ROLE_RESPONSABLE') and courrier.statut.value == 'recu' %}
+            <div class="panel p-3 mb-3">
+                <h5 class="mb-3">Traitement</h5>
+                <form method="post" action="{{ path('app_courrier_traiter', {id: courrier.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('traiter' ~ courrier.id) }}">
+                    <button class="btn btn-success w-100" type="submit">Marquer comme traité</button>
+                </form>
+            </div>
+        {% endif %}
+
+        {% if is_granted('ROLE_RESPONSABLE') and courrier.statut.value in ['traite','valide','recu','rejete'] %}
+            <div class="panel p-3 mb-3">
+                <form method="post" action="{{ path('app_courrier_archiver', {id: courrier.id}) }}"
+                      onsubmit="return confirm('Archiver ce courrier ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('archiver' ~ courrier.id) }}">
+                    <button class="btn btn-dark w-100" type="submit">Archiver</button>
+                </form>
+            </div>
+        {% endif %}
+
+        <div class="panel">
+            <div class="panel-header"><h5>Transmissions</h5></div>
+            <ul class="list-group list-group-flush">
+                {% for t in courrier.transmissions %}
+                    <li class="list-group-item">
+                        <div class="fw-semibold">{{ t.expediteur }} → {{ t.destinataire }}</div>
+                        <small class="muted">{{ t.dateTransmission|date('d/m/Y H:i') }} — {{ t.etat.label }}</small>
+                        {% if t.destinataire.id == app.user.id and t.etat.value == 'envoye' %}
+                            <form method="post" action="{{ path('app_transmission_receptionner', {id: t.id}) }}" class="mt-2">
+                                <input type="hidden" name="_token" value="{{ csrf_token('reception' ~ t.id) }}">
+                                <button class="btn btn-sm btn-success" type="submit">Confirmer réception</button>
+                            </form>
+                        {% endif %}
+                    </li>
+                {% else %}
+                    <li class="list-group-item muted">Aucune transmission</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

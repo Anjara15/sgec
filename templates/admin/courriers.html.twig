@@ -1,0 +1,984 @@
+ {# templates/admin/courriers.html.twig #}
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% set title = 'Tous les courriers - SGEC' %}
+{% set pageHeading = 'Gestion des courriers' %}
+{% set roleLabel = 'Administrateur' %}
+{% set demoUser = 'Admin SGEC' %}
+
+{% set menu = [
+    {label: 'Tableau de bord', icon: 'bi-grid-1x2', url: '/admin/dashboard'},
+    {label: 'Utilisateurs', icon: 'bi-people', url: '/admin/utilisateurs'},
+    {label: 'Rôles et permissions', icon: 'bi-shield-lock', url: '/admin/roles'},
+    {label: 'Services', icon: 'bi-building', url: '/admin/services'},
+    {label: 'Tous les courriers', icon: 'bi-envelope-paper', url: '/admin/courriers', active: true},
+    {label: 'Statistiques', icon: 'bi-bar-chart', url: '/admin/statistiques'},
+    {label: 'Journal d’activité', icon: 'bi-clock-history', url: '/admin/historiques'},
+    {label: 'Paramètres', icon: 'bi-gear', url: '/admin/parametres'}
+] %}
+
+{% block title %}Tous les courriers | SGEC{% endblock %}
+
+{% block dashboard_content %}
+<div class="mail-page">
+{}
+    {# En-tête #}
+    <div class="mail-header">
+        <div>
+            <div class="mail-eyebrow">
+                <i class="bi bi-envelope-paper"></i>
+                GESTION DOCUMENTAIRE
+            </div>
+            <h1>Tous les courriers</h1>
+            <p>Centralisez, suivez et gérez les courriers entrants et sortants.</p>
+        </div>
+
+        <div class="mail-header-actions">
+            <button type="button" class="mail-btn mail-btn-light" onclick="exportCourriers()">
+                <i class="bi bi-download"></i>
+                Exporter
+            </button>
+            <button type="button" class="mail-btn mail-btn-primary" onclick="openCourierModal()">
+                <i class="bi bi-plus-lg"></i>
+                Nouveau courrier
+            </button>
+        </div>
+    </div>
+
+    {# Statistiques #}
+    <div class="mail-stats">
+        <div class="mail-stat-card">
+            <div class="mail-stat-icon stat-blue">
+                <i class="bi bi-envelope"></i>
+            </div>
+            <div>
+                <span class="mail-stat-label">Total des courriers</span>
+                <h2 id="totalCourriers">248</h2>
+                <span class="mail-stat-note">Tous les courriers enregistrés</span>
+            </div>
+        </div>
+
+        <div class="mail-stat-card">
+            <div class="mail-stat-icon stat-orange">
+                <i class="bi bi-inbox"></i>
+            </div>
+            <div>
+                <span class="mail-stat-label">Courriers entrants</span>
+                <h2>142</h2>
+                <span class="mail-stat-note">Documents reçus</span>
+            </div>
+        </div>
+
+        <div class="mail-stat-card">
+            <div class="mail-stat-icon stat-purple">
+                <i class="bi bi-send"></i>
+            </div>
+            <div>
+                <span class="mail-stat-label">Courriers sortants</span>
+                <h2>106</h2>
+                <span class="mail-stat-note">Documents envoyés</span>
+            </div>
+        </div>
+
+        <div class="mail-stat-card">
+            <div class="mail-stat-icon stat-green">
+                <i class="bi bi-check2-circle"></i>
+            </div>
+            <div>
+                <span class="mail-stat-label">Traités</span>
+                <h2>186</h2>
+                <span class="mail-stat-note">Courriers finalisés</span>
+            </div>
+        </div>
+    </div>
+
+    {# Répartition rapide #}
+    <div class="mail-overview">
+        <div class="mail-overview-heading">
+            <div>
+                <h3>Suivi des courriers</h3>
+                <p>Vue d'ensemble de l'état de traitement</p>
+            </div>
+            <span class="mail-overview-period">
+                <i class="bi bi-calendar3"></i>
+                Vue générale
+            </span>
+        </div>
+
+        <div class="mail-progress-list">
+            <div class="mail-progress-item">
+                <div class="mail-progress-info">
+                    <span><span class="progress-dot dot-green"></span> Traités</span>
+                    <strong>186 <small>(75 %)</small></strong>
+                </div>
+                <div class="mail-progress-track">
+                    <div class="mail-progress-bar bar-green" style="width: 75%"></div>
+                </div>
+            </div>
+
+            <div class="mail-progress-item">
+                <div class="mail-progress-info">
+                    <span><span class="progress-dot dot-orange"></span> En cours</span>
+                    <strong>42 <small>(17 %)</small></strong>
+                </div>
+                <div class="mail-progress-track">
+                    <div class="mail-progress-bar bar-orange" style="width: 17%"></div>
+                </div>
+            </div>
+
+            <div class="mail-progress-item">
+                <div class="mail-progress-info">
+                    <span><span class="progress-dot dot-red"></span> En attente</span>
+                    <strong>20 <small>(8 %)</small></strong>
+                </div>
+                <div class="mail-progress-track">
+                    <div class="mail-progress-bar bar-red" style="width: 8%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Liste des courriers #}
+    <div class="mail-table-card">
+        <div class="mail-table-heading">
+            <div>
+                <h3>Registre des courriers</h3>
+                <p>Consultez les courriers et leur état de traitement.</p>
+            </div>
+            <span class="mail-record-count"><span id="visibleCount">8</span> courriers affichés</span>
+        </div>
+
+        {# Filtres #}
+        <div class="mail-filters">
+            <div class="mail-search">
+                <i class="bi bi-search"></i>
+                <input type="search" id="searchCourier"
+                       placeholder="Rechercher une référence, un objet, un expéditeur...">
+            </div>
+
+            <select id="filterType" aria-label="Filtrer par type">
+                <option value="">Tous les types</option>
+                <option value="Entrant">Entrant</option>
+                <option value="Sortant">Sortant</option>
+            </select>
+
+            <select id="filterStatus" aria-label="Filtrer par statut">
+                <option value="">Tous les statuts</option>
+                <option value="Traité">Traité</option>
+                <option value="En cours">En cours</option>
+                <option value="En attente">En attente</option>
+            </select>
+
+            <select id="filterService" aria-label="Filtrer par service">
+                <option value="">Tous les services</option>
+                <option value="Direction générale">Direction générale</option>
+                <option value="Ressources humaines">Ressources humaines</option>
+                <option value="Finances">Finances</option>
+                <option value="Informatique">Informatique</option>
+                <option value="Secrétariat">Secrétariat</option>
+            </select>
+
+            <button type="button" class="mail-btn mail-btn-light mail-reset" onclick="resetCourierFilters()">
+                <i class="bi bi-arrow-counterclockwise"></i>
+                Réinitialiser
+            </button>
+        </div>
+
+        {# Tableau #}
+        <div class="mail-table-wrapper">
+            <table class="mail-table" id="courrierTable">
+                <thead>
+                    <tr>
+                        <th>Référence</th>
+                        <th>Objet du courrier</th>
+                        <th>Type</th>
+                        <th>Expéditeur / Destinataire</th>
+                        <th>Service responsable</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-type="Entrant" data-status="En attente" data-service="Direction générale">
+                        <td><span class="mail-reference">CR-2026-001</span></td>
+                        <td>
+                            <div class="mail-subject">Demande de partenariat</div>
+                            <div class="mail-subject-note">Document administratif</div>
+                        </td>
+                        <td><span class="mail-type type-in"><i class="bi bi-arrow-down-left"></i> Entrant</span></td>
+                        <td>
+                            <div class="mail-person">Ministère partenaire</div>
+                            <div class="mail-subject-note">Externe</div>
+                        </td>
+                        <td>Direction générale</td>
+                        <td>28/10/2026</td>
+                        <td><span class="mail-status status-pending"><span></span> En attente</span></td>
+                        <td>
+                            <div class="mail-row-actions">
+                                <button type="button" title="Consulter" aria-label="Consulter CR-2026-001" onclick="viewCourier(this)"><i class="bi bi-eye"></i></button>
+                                <button type="button" title="Modifier" aria-label="Modifier CR-2026-001" onclick="editCourier(this)"><i class="bi bi-pencil"></i></button>
+                                <button type="button" title="Supprimer" aria-label="Supprimer CR-2026-001" onclick="deleteCourier(this)"><i class="bi bi-trash3"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-type="Sortant" data-status="Traité" data-service="Ressources humaines">
+                        <td><span class="mail-reference">CR-2026-002</span></td>
+                        <td>
+                            <div class="mail-subject">Transmission du rapport mensuel</div>
+                            <div class="mail-subject-note">Rapport d'activité</div>
+                        </td>
+                        <td><span class="mail-type type-out"><i class="bi bi-arrow-up-right"></i> Sortant</span></td>
+                        <td>
+                            <div class="mail-person">Direction régionale</div>
+                            <div class="mail-subject-note">Externe</div>
+                        </td>
+                        <td>Ressources humaines</td>
+                        <td>27/10/2026</td>
+                        <td><span class="mail-status status-done"><span></span> Traité</span></td>
+                        <td>
+                            <div class="mail-row-actions">
+                                <button type="button" title="Consulter" aria-label="Consulter CR-2026-002" onclick="viewCourier(this)"><i class="bi bi-eye"></i></button>
+                                <button type="button" title="Modifier" aria-label="Modifier CR-2026-002" onclick="editCourier(this)"><i class="bi bi-pencil"></i></button>
+                                <button type="button" title="Supprimer" aria-label="Supprimer CR-2026-002" onclick="deleteCourier(this)"><i class="bi bi-trash3"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-type="Entrant" data-status="En cours" data-service="Finances">
+                        <td><span class="mail-reference">CR-2026-003</span></td>
+                        <td>
+                            <div class="mail-subject">Facture de prestation</div>
+                            <div class="mail-subject-note">Document financier</div>
+                        </td>
+                        <td><span class="mail-type type-in"><i class="bi bi-arrow-down-left"></i> Entrant</span></td>
+                        <td>
+                            <div class="mail-person">Entreprise fournisseur</div>
+                            <div class="mail-subject-note">Externe</div>
+                        </td>
+                        <td>Finances</td>
+                        <td>26/10/2026</td>
+                        <td><span class="mail-status status-progress"><span></span> En cours</span></td>
+                        <td>
+                            <div class="mail-row-actions">
+                                <button type="button" title="Consulter" aria-label="Consulter CR-2026-003" onclick="viewCourier(this)"><i class="bi bi-eye"></i></button>
+                                <button type="button" title="Modifier" aria-label="Modifier CR-2026-003" onclick="editCourier(this)"><i class="bi bi-pencil"></i></button>
+                                <button type="button" title="Supprimer" aria-label="Supprimer CR-2026-003" onclick="deleteCourier(this)"><i class="bi bi-trash3"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-type="Entrant" data-status="Traité" data-service="Informatique">
+                        <td><span class="mail-reference">CR-2026-004</span></td>
+                        <td>
+                            <div class="mail-subject">Demande d'assistance technique</div>
+                            <div class="mail-subject-note">Demande de service</div>
+                        </td>
+                        <td><span class="mail-type type-in"><i class="bi bi-arrow-down-left"></i> Entrant</span></td>
+                        <td>
+                            <div class="mail-person">Service administratif</div>
+                            <div class="mail-subject-note">Interne</div>
+                        </td>
+                        <td>Informatique</td>
+                        <td>25/10/2026</td>
+                        <td><span class="mail-status status-done"><span></span> Traité</span></td>
+                        <td>
+                            <div class="mail-row-actions">
+                                <button type="button" title="Consulter" aria-label="Consulter CR-2026-004" onclick="viewCourier(this)"><i class="bi bi-eye"></i></button>
+                                <button type="button" title="Modifier" aria-label="Modifier CR-2026-004" onclick="editCourier(this)"><i class="bi bi-pencil"></i></button>
+                                <button type="button" title="Supprimer" aria-label="Supprimer CR-2026-004" onclick="deleteCourier(this)"><i class="bi bi-trash3"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-type="Sortant" data-status="En cours" data-service="Direction générale">
+                        <td><span class="mail-reference">CR-2026-005</span></td>
+                        <td>
+                            <div class="mail-subject">Convocation à une réunion</div>
+                            <div class="mail-subject-note">Correspondance officielle</div>
+                        </td>
+                        <td><span class="mail-type type-out"><i class="bi bi-arrow-up-right"></i> Sortant</span></td>
+                        <td>
+                            <div class="mail-person">Responsables des services</div>
+                            <div class="mail-subject-note">Interne</div>
+                        </td>
+                        <td>Direction générale</td>
+                        <td>24/10/2026</td>
+                        <td><span class="mail-status status-progress"><span></span> En cours</span></td>
+                        <td>
+                            <div class="mail-row-actions">
+                                <button type="button" title="Consulter" aria-label="Consulter CR-2026-005" onclick="viewCourier(this)"><i class="bi bi-eye"></i></button>
+                                <button type="button" title="Modifier" aria-label="Modifier CR-2026-005" onclick="editCourier(this)"><i class="bi bi-pencil"></i></button>
+                                <button type="button" title="Supprimer" aria-label="Supprimer CR-2026-005" onclick="deleteCourier(this)"><i class="bi bi-trash3"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-type="Entrant" data-status="En attente" data-service="Secrétariat">
+                        <td><span class="mail-reference">CR-2026-006</span></td>
+                        <td>
+                            <div class="mail-subject">Demande de documentation</div>
+                            <div class="mail-subject-note">Demande d'information</div>
+                        </td>
+                        <td><span class="mail-type type-in"><i class="bi bi-arrow-down-left"></i> Entrant</span></td>
+                        <td>
+                            <div class="mail-person">Organisme partenaire</div>
+                            <div class="mail-subject-note">Externe</div>
+                        </td>
+                        <td>Secrétariat</td>
+                        <td>23/10/2026</td>
+                        <td><span class="mail-status status-pending"><span></span> En attente</span></td>
+                        <td>
+                            <div class="mail-row-actions">
+                                <button type="button" title="Consulter" aria-label="Consulter CR-2026-006" onclick="viewCourier(this)"><i class="bi bi-eye"></i></button>
+                                <button type="button" title="Modifier" aria-label="Modifier CR-2026-006" onclick="editCourier(this)"><i class="bi bi-pencil"></i></button>
+                                <button type="button" title="Supprimer" aria-label="Supprimer CR-2026-006" onclick="deleteCourier(this)"><i class="bi bi-trash3"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-type="Sortant" data-status="Traité" data-service="Finances">
+                        <td><span class="mail-reference">CR-2026-007</span></td>
+                        <td>
+                            <div class="mail-subject">Envoi du budget prévisionnel</div>
+                            <div class="mail-subject-note">Document budgétaire</div>
+                        </td>
+                        <td><span class="mail-type type-out"><i class="bi bi-arrow-up-right"></i> Sortant</span></td>
+                        <td>
+                            <div class="mail-person">Direction financière</div>
+                            <div class="mail-subject-note">Interne</div>
+                        </td>
+                        <td>Finances</td>
+                        <td>22/10/2026</td>
+                        <td><span class="mail-status status-done"><span></span> Traité</span></td>
+                        <td>
+                            <div class="mail-row-actions">
+                                <button type="button" title="Consulter" aria-label="Consulter CR-2026-007" onclick="viewCourier(this)"><i class="bi bi-eye"></i></button>
+                                <button type="button" title="Modifier" aria-label="Modifier CR-2026-007" onclick="editCourier(this)"><i class="bi bi-pencil"></i></button>
+                                <button type="button" title="Supprimer" aria-label="Supprimer CR-2026-007" onclick="deleteCourier(this)"><i class="bi bi-trash3"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-type="Entrant" data-status="Traité" data-service="Ressources humaines">
+                        <td><span class="mail-reference">CR-2026-008</span></td>
+                        <td>
+                            <div class="mail-subject">Demande de congé administratif</div>
+                            <div class="mail-subject-note">Dossier du personnel</div>
+                        </td>
+                        <td><span class="mail-type type-in"><i class="bi bi-arrow-down-left"></i> Entrant</span></td>
+                        <td>
+                            <div class="mail-person">Agent administratif</div>
+                            <div class="mail-subject-note">Interne</div>
+                        </td>
+                        <td>Ressources humaines</td>
+                        <td>21/10/2026</td>
+                        <td><span class="mail-status status-done"><span></span> Traité</span></td>
+                        <td>
+                            <div class="mail-row-actions">
+                                <button type="button" title="Consulter" aria-label="Consulter CR-2026-008" onclick="viewCourier(this)"><i class="bi bi-eye"></i></button>
+                                <button type="button" title="Modifier" aria-label="Modifier CR-2026-008" onclick="editCourier(this)"><i class="bi bi-pencil"></i></button>
+                                <button type="button" title="Supprimer" aria-label="Supprimer CR-2026-008" onclick="deleteCourier(this)"><i class="bi bi-trash3"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="mail-empty" id="emptyCourriers" hidden>
+                <i class="bi bi-inbox"></i>
+                <h4>Aucun courrier trouvé</h4>
+                <p>Modifiez les filtres ou la recherche pour afficher des résultats.</p>
+            </div>
+        </div>
+
+        <div class="mail-table-footer">
+            <span>Les données présentées sont des exemples de démonstration.</span>
+            <span><i class="bi bi-shield-check"></i> Accès réservé aux utilisateurs autorisés</span>
+        </div>
+    </div>
+
+    {# Fenêtre de création / modification #}
+    <div class="mail-modal-backdrop" id="courierModal" hidden>
+        <div class="mail-modal" role="dialog" aria-modal="true" aria-labelledby="courierModalTitle">
+            <div class="mail-modal-header">
+                <div>
+                    <span class="mail-eyebrow">REGISTRE DOCUMENTAIRE</span>
+                    <h3 id="courierModalTitle">Nouveau courrier</h3>
+                </div>
+                <button type="button" class="mail-modal-close" onclick="closeCourierModal()" aria-label="Fermer">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <form id="courierForm">
+                <div class="mail-form-grid">
+                    <div class="mail-form-group">
+                        <label for="courierReference">Référence</label>
+                        <input id="courierReference" name="reference" required placeholder="Ex. CR-2026-009">
+                    </div>
+                    <div class="mail-form-group">
+                        <label for="courierType">Type de courrier</label>
+                        <select id="courierType" name="type" required>
+                            <option value="Entrant">Entrant</option>
+                            <option value="Sortant">Sortant</option>
+                        </select>
+                    </div>
+                    <div class="mail-form-group mail-form-full">
+                        <label for="courierSubject">Objet du courrier</label>
+                        <input id="courierSubject" name="subject" required placeholder="Objet du courrier">
+                    </div>
+                    <div class="mail-form-group">
+                        <label for="courierSender">Expéditeur / Destinataire</label>
+                        <input id="courierSender" name="sender" required placeholder="Nom ou organisme">
+                    </div>
+                    <div class="mail-form-group">
+                        <label for="courierService">Service responsable</label>
+                        <select id="courierService" name="service" required>
+                            <option value="Direction générale">Direction générale</option>
+                            <option value="Ressources humaines">Ressources humaines</option>
+                            <option value="Finances">Finances</option>
+                            <option value="Informatique">Informatique</option>
+                            <option value="Secrétariat">Secrétariat</option>
+                        </select>
+                    </div>
+                    <div class="mail-form-group">
+                        <label for="courierDate">Date du courrier</label>
+                        <input type="date" id="courierDate" name="date" required value="2026-10-28">
+                    </div>
+                    <div class="mail-form-group">
+                        <label for="courierStatus">Statut</label>
+                        <select id="courierStatus" name="status" required>
+                            <option value="En attente">En attente</option>
+                            <option value="En cours">En cours</option>
+                            <option value="Traité">Traité</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mail-modal-footer">
+                    <button type="button" class="mail-btn mail-btn-light" onclick="closeCourierModal()">Annuler</button>
+                    <button type="submit" class="mail-btn mail-btn-primary">
+                        <i class="bi bi-check2"></i> Enregistrer
+                    </button>
+                </div>
+                <p class="mail-demo-warning">
+                    Cette interface est une démonstration : les ajouts et modifications ne sont pas enregistrés en base de données.
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <div class="mail-toast" id="courierToast" role="status" aria-live="polite"></div>
+</div>
+
+<style>
+.mail-page {
+    --mail-primary: #2457d6;
+    --mail-primary-dark: #1744b4;
+    --mail-text: #17233d;
+    --mail-muted: #7b879b;
+    --mail-border: #e8edf5;
+    color: var(--mail-text);
+    padding-bottom: 32px;
+}
+.mail-page * { box-sizing: border-box; }
+.mail-header {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 20px; margin-bottom: 26px;
+}
+.mail-eyebrow {
+    color: var(--mail-primary); font-size: 10px; font-weight: 800;
+    letter-spacing: 1.3px; display: flex; align-items: center; gap: 7px;
+}
+.mail-header h1 {
+    margin: 8px 0 5px; font-size: clamp(24px, 3vw, 30px);
+    font-weight: 800; letter-spacing: -.7px;
+}
+.mail-header p, .mail-table-heading p, .mail-overview-heading p {
+    color: var(--mail-muted); margin: 0; font-size: 13px;
+}
+.mail-header-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.mail-btn {
+    border: 1px solid transparent; border-radius: 9px; padding: 10px 14px;
+    font-size: 12px; font-weight: 700; display: inline-flex;
+    align-items: center; justify-content: center; gap: 8px;
+    cursor: pointer; transition: .2s;
+}
+.mail-btn-primary { background: var(--mail-primary); color: #fff; }
+.mail-btn-primary:hover { background: var(--mail-primary-dark); color: #fff; }
+.mail-btn-light { background: #fff; color: #43516a; border-color: #e1e7f0; }
+.mail-btn-light:hover { background: #f6f8fc; }
+.mail-stats {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px; margin-bottom: 20px;
+}
+.mail-stat-card {
+    display: flex; gap: 14px; align-items: flex-start; padding: 21px 18px;
+    background: #fff; border: 1px solid var(--mail-border);
+    border-radius: 14px; box-shadow: 0 4px 18px rgba(24, 46, 85, .025);
+}
+.mail-stat-icon {
+    flex: 0 0 44px; height: 44px; border-radius: 12px;
+    display: grid; place-items: center; font-size: 19px;
+}
+.stat-blue { background: #eaf0ff; color: #315fdb; }
+.stat-orange { background: #fff2e3; color: #d9821b; }
+.stat-purple { background: #f1eaff; color: #8452cc; }
+.stat-green { background: #e4f8ed; color: #23985a; }
+.mail-stat-label { display: block; font-size: 11px; color: var(--mail-muted); font-weight: 600; }
+.mail-stat-card h2 { margin: 5px 0 4px; font-size: 25px; font-weight: 800; }
+.mail-stat-note { display: block; font-size: 10px; color: #97a1b2; }
+.mail-overview, .mail-table-card {
+    background: #fff; border: 1px solid var(--mail-border);
+    border-radius: 14px; margin-bottom: 22px; overflow: hidden;
+}
+.mail-overview { padding: 22px 24px; }
+.mail-overview-heading, .mail-table-heading {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+}
+.mail-overview-heading h3, .mail-table-heading h3 {
+    font-size: 16px; font-weight: 800; margin: 0 0 6px;
+}
+.mail-overview-period {
+    color: #5c6981; background: #f6f8fc; padding: 8px 11px;
+    border-radius: 8px; font-size: 11px; font-weight: 700;
+}
+.mail-progress-list {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 26px; margin-top: 25px;
+}
+.mail-progress-info {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; margin-bottom: 10px; font-size: 12px;
+}
+.mail-progress-info > span { color: #58657b; }
+.mail-progress-info strong { font-size: 12px; }
+.mail-progress-info small { color: #929db0; font-weight: 500; }
+.progress-dot, .mail-status > span {
+    display: inline-block; width: 7px; height: 7px;
+    border-radius: 50%; margin-right: 5px;
+}
+.dot-green { background: #26a269; }
+.dot-orange { background: #e9a13b; }
+.dot-red { background: #e65b63; }
+.mail-progress-track { height: 7px; background: #f0f2f7; border-radius: 20px; overflow: hidden; }
+.mail-progress-bar { height: 100%; border-radius: 20px; }
+.bar-green { background: #2eaa70; }
+.bar-orange { background: #e9a13b; }
+.bar-red { background: #e65b63; }
+.mail-table-heading { padding: 22px 22px 18px; }
+.mail-record-count {
+    color: #6d7a91; background: #f5f7fb; padding: 7px 10px;
+    border-radius: 7px; font-size: 11px; white-space: nowrap;
+}
+.mail-filters {
+    display: flex; flex-wrap: wrap; gap: 10px; padding: 0 22px 20px;
+}
+.mail-search {
+    flex: 1 1 240px; min-width: 190px; position: relative;
+}
+.mail-search i {
+    position: absolute; top: 50%; left: 12px;
+    transform: translateY(-50%); color: #929db0;
+}
+.mail-search input, .mail-filters select {
+    width: 100%; min-height: 39px; border: 1px solid #e2e8f1;
+    background: #fff; color: #536078; border-radius: 8px;
+    padding: 9px 11px; font-size: 11px; outline: none;
+}
+.mail-search input { padding-left: 34px; }
+.mail-search input:focus, .mail-filters select:focus,
+.mail-form-group input:focus, .mail-form-group select:focus {
+    border-color: #7da0fa; box-shadow: 0 0 0 3px rgba(36, 87, 214, .08);
+}
+.mail-filters select { flex: 0 1 145px; width: auto; }
+.mail-reset { padding: 9px 11px; }
+.mail-table-wrapper { width: 100%; overflow-x: auto; }
+.mail-table { width: 100%; min-width: 1050px; border-collapse: collapse; }
+.mail-table thead { background: #f8faff; }
+.mail-table th {
+    padding: 13px 14px; text-align: left; color: #8490a4;
+    font-size: 10px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: .45px; white-space: nowrap; border-top: 1px solid #edf0f6;
+    border-bottom: 1px solid #edf0f6;
+}
+.mail-table td {
+    padding: 15px 14px; border-bottom: 1px solid #f0f2f7;
+    color: #5c6880; font-size: 11px; vertical-align: middle;
+}
+.mail-table tbody tr:hover { background: #fafbff; }
+.mail-table tbody tr:last-child td { border-bottom: 0; }
+.mail-reference { color: #315fcb; font-weight: 800; white-space: nowrap; }
+.mail-subject { color: #26344e; font-weight: 700; min-width: 170px; }
+.mail-subject-note { margin-top: 4px; color: #9aa4b5; font-size: 10px; }
+.mail-person { color: #536078; font-weight: 600; min-width: 130px; }
+.mail-type, .mail-status {
+    display: inline-flex; align-items: center; white-space: nowrap;
+    font-size: 10px; font-weight: 700; border-radius: 6px; padding: 6px 8px;
+}
+.type-in { color: #2762cb; background: #eaf1ff; }
+.type-out { color: #8b54c7; background: #f3eaff; }
+.status-done { color: #208957; background: #e6f7ed; }
+.status-done > span { background: #28a268; }
+.status-progress { color: #b77819; background: #fff4df; }
+.status-progress > span { background: #e6a13c; }
+.status-pending { color: #cc555a; background: #ffebec; }
+.status-pending > span { background: #e75e63; }
+.mail-row-actions { display: flex; align-items: center; gap: 5px; justify-content: flex-end; }
+.mail-row-actions button, .mail-modal-close {
+    width: 30px; height: 30px; display: grid; place-items: center;
+    border: 1px solid #e8edf5; border-radius: 7px; background: #fff;
+    color: #758198; cursor: pointer;
+}
+.mail-row-actions button:hover { background: #edf3ff; color: var(--mail-primary); }
+.mail-row-actions button:last-child:hover { background: #fff0f0; color: #d9474e; }
+.mail-table-footer {
+    border-top: 1px solid #edf0f6; padding: 15px 22px;
+    display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between;
+    color: #929db0; font-size: 10px;
+}
+.mail-table-footer i { color: #2a9b65; margin-right: 4px; }
+.mail-empty { text-align: center; padding: 45px 20px; color: #8b97aa; }
+.mail-empty[hidden], .mail-modal-backdrop[hidden] { display: none !important; }
+.mail-empty > i { font-size: 30px; }
+.mail-empty h4 { color: #34415a; margin: 12px 0 5px; font-size: 15px; }
+.mail-empty p { font-size: 12px; }
+.mail-modal-backdrop {
+    position: fixed; inset: 0; z-index: 9999; padding: 20px;
+    display: flex; justify-content: center; align-items: center;
+    background: rgba(16, 28, 50, .55); overflow-y: auto;
+}
+.mail-modal {
+    width: 100%; max-width: 650px; background: #fff;
+    border-radius: 16px; padding: 24px; box-shadow: 0 25px 80px rgba(0,0,0,.2);
+}
+.mail-modal-header { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 24px; }
+.mail-modal-header h3 { font-size: 21px; font-weight: 800; margin: 7px 0 0; }
+.mail-modal-close { flex-shrink: 0; }
+.mail-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 17px; }
+.mail-form-group { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.mail-form-full { grid-column: 1 / -1; }
+.mail-form-group label { font-size: 11px; color: #536078; font-weight: 700; }
+.mail-form-group input, .mail-form-group select {
+    width: 100%; min-height: 42px; padding: 10px 12px;
+    border: 1px solid #e1e7f0; border-radius: 8px; outline: none;
+    background: #fff; color: #34415a; font-size: 12px;
+}
+.mail-modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+.mail-demo-warning { margin: 15px 0 0; color: #929db0; font-size: 10px; line-height: 1.5; }
+.mail-toast {
+    position: fixed; z-index: 10000; bottom: 25px; right: 25px;
+    max-width: calc(100vw - 40px); padding: 13px 17px; border-radius: 9px;
+    background: #17233d; color: #fff; box-shadow: 0 8px 25px rgba(0,0,0,.15);
+    font-size: 12px; opacity: 0; pointer-events: none; transform: translateY(8px);
+    transition: .2s;
+}
+.mail-toast.show { opacity: 1; transform: translateY(0); }
+@media (max-width: 1150px) {
+    .mail-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .mail-filters select { flex: 1 1 135px; }
+}
+@media (max-width: 700px) {
+    .mail-header { align-items: flex-start; flex-direction: column; }
+    .mail-header-actions { width: 100%; }
+    .mail-header-actions .mail-btn { flex: 1; }
+    .mail-stats { gap: 10px; }
+    .mail-stat-card { padding: 14px 12px; gap: 10px; }
+    .mail-stat-icon { flex-basis: 36px; height: 36px; font-size: 16px; }
+    .mail-stat-card h2 { font-size: 21px; }
+    .mail-stat-note { line-height: 1.4; }
+    .mail-overview { padding: 18px 15px; }
+    .mail-progress-list { grid-template-columns: 1fr; gap: 17px; }
+    .mail-table-heading { align-items: flex-start; flex-direction: column; padding: 18px 15px; }
+    .mail-filters { padding: 0 15px 16px; }
+    .mail-search { flex-basis: 100%; }
+    .mail-filters select { flex-basis: calc(50% - 6px); }
+    .mail-reset { flex: 1; }
+    .mail-table-footer { padding: 13px 15px; }
+    .mail-modal { padding: 18px; }
+    .mail-form-grid { grid-template-columns: 1fr; }
+    .mail-form-full { grid-column: auto; }
+}
+</style>
+
+<script>
+(function () {
+    const page = document.querySelector('.mail-page');
+    if (!page || page.dataset.initialized === 'true') return;
+    page.dataset.initialized = 'true';
+
+    const search = page.querySelector('#searchCourier');
+    const typeFilter = page.querySelector('#filterType');
+    const statusFilter = page.querySelector('#filterStatus');
+    const serviceFilter = page.querySelector('#filterService');
+    const tableBody = page.querySelector('#courrierTable tbody');
+    const visibleCount = page.querySelector('#visibleCount');
+    const emptyState = page.querySelector('#emptyCourriers');
+    const modal = page.querySelector('#courierModal');
+    const form = page.querySelector('#courierForm');
+    const toast = page.querySelector('#courierToast');
+    let editingRow = null;
+    let toastTimer;
+
+    function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function normalize(value) {
+        return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    }
+
+    function applyFilters() {
+        const query = normalize(search.value.trim());
+        let visible = 0;
+
+        tableBody.querySelectorAll('tr').forEach(row => {
+            const matchesQuery = normalize(row.textContent).includes(query);
+            const matchesType = !typeFilter.value || row.dataset.type === typeFilter.value;
+            const matchesStatus = !statusFilter.value || row.dataset.status === statusFilter.value;
+            const matchesService = !serviceFilter.value || row.dataset.service === serviceFilter.value;
+            const show = matchesQuery && matchesType && matchesStatus && matchesService;
+
+            row.hidden = !show;
+            if (show) visible++;
+        });
+
+        visibleCount.textContent = visible;
+        emptyState.hidden = visible !== 0;
+    }
+
+    function resetFilters() {
+        search.value = '';
+        typeFilter.value = '';
+        statusFilter.value = '';
+        serviceFilter.value = '';
+        applyFilters();
+    }
+
+    function openModal(row = null) {
+        editingRow = row;
+        form.reset();
+
+        page.querySelector('#courierModalTitle').textContent = row ? 'Modifier le courrier' : 'Nouveau courrier';
+
+        if (row) {
+            const cells = row.querySelectorAll('td');
+            page.querySelector('#courierReference').value = cells[0].innerText.trim();
+            page.querySelector('#courierSubject').value = cells[1].querySelector('.mail-subject').innerText.trim();
+            page.querySelector('#courierType').value = row.dataset.type;
+            page.querySelector('#courierSender').value = cells[3].querySelector('.mail-person').innerText.trim();
+            page.querySelector('#courierService').value = row.dataset.service;
+            page.querySelector('#courierStatus').value = row.dataset.status;
+
+            const parts = cells[5].innerText.trim().split('/');
+            if (parts.length === 3) {
+                page.querySelector('#courierDate').value = `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+        } else {
+            page.querySelector('#courierDate').value = new Date().toISOString().slice(0, 10);
+        }
+
+        modal.hidden = false;
+        page.querySelector('#courierReference').focus();
+    }
+
+    function closeModal() {
+        modal.hidden = true;
+        editingRow = null;
+        form.reset();
+    }
+
+    function statusClass(status) {
+        if (status === 'Traité') return 'status-done';
+        if (status === 'En cours') return 'status-progress';
+        return 'status-pending';
+    }
+
+    function typeMarkup(type) {
+        const incoming = type === 'Entrant';
+        return `<span class="mail-type ${incoming ? 'type-in' : 'type-out'}"><i class="bi ${incoming ? 'bi-arrow-down-left' : 'bi-arrow-up-right'}"></i> ${type}</span>`;
+    }
+
+    function statusMarkup(status) {
+        return `<span class="mail-status ${statusClass(status)}"><span></span> ${status}</span>`;
+    }
+
+    function actionMarkup(reference) {
+        return `<div class="mail-row-actions">
+            <button type="button" title="Consulter" aria-label="Consulter ${reference}" data-action="view"><i class="bi bi-eye"></i></button>
+            <button type="button" title="Modifier" aria-label="Modifier ${reference}" data-action="edit"><i class="bi bi-pencil"></i></button>
+            <button type="button" title="Supprimer" aria-label="Supprimer ${reference}" data-action="delete"><i class="bi bi-trash3"></i></button>
+        </div>`;
+    }
+
+    function formatDate(dateValue) {
+        if (!dateValue) return '';
+        const parts = dateValue.split('-');
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+
+    function saveCourier(event) {
+        event.preventDefault();
+        if (!form.reportValidity()) return;
+
+        const data = new FormData(form);
+        const reference = String(data.get('reference')).trim();
+        const subject = String(data.get('subject')).trim();
+
+        const duplicate = [...tableBody.querySelectorAll('tr')].some(row =>
+            row !== editingRow &&
+            row.querySelector('.mail-reference').textContent.trim().toLowerCase() === reference.toLowerCase()
+        );
+
+        if (duplicate) {
+            showToast('Cette référence existe déjà dans le tableau.');
+            return;
+        }
+
+        const type = String(data.get('type'));
+        const sender = String(data.get('sender')).trim();
+        const service = String(data.get('service'));
+        const status = String(data.get('status'));
+        const date = String(data.get('date'));
+        const dateLabel = formatDate(date);
+
+        let row = editingRow;
+        if (!row) {
+            row = document.createElement('tr');
+            tableBody.prepend(row);
+        }
+
+        row.dataset.type = type;
+        row.dataset.status = status;
+        row.dataset.service = service;
+
+        const cells = [
+            `<td><span class="mail-reference"></span></td>`,
+            `<td><div class="mail-subject"></div><div class="mail-subject-note">Document administratif</div></td>`,
+            `<td>${typeMarkup(type)}</td>`,
+            `<td><div class="mail-person"></div><div class="mail-subject-note">À préciser</div></td>`,
+            `<td></td>`,
+            `<td></td>`,
+            `<td>${statusMarkup(status)}</td>`,
+            `<td>${actionMarkup(reference)}</td>`
+        ];
+
+        row.innerHTML = cells.join('');
+        row.querySelector('.mail-reference').textContent = reference;
+        row.querySelector('.mail-subject').textContent = subject;
+        row.querySelector('.mail-person').textContent = sender;
+        row.cells[4].textContent = service;
+        row.cells[5].textContent = dateLabel;
+
+        closeModal();
+        applyFilters();
+        showToast(editingRow ? 'Courrier modifié dans la démonstration.' : 'Courrier ajouté à la démonstration.');
+    }
+
+    function viewCourier(row) {
+        const cells = row.querySelectorAll('td');
+        const message = [
+            'Référence : ' + cells[0].innerText.trim(),
+            'Objet : ' + cells[1].querySelector('.mail-subject').innerText.trim(),
+            'Type : ' + row.dataset.type,
+            'Expéditeur / destinataire : ' + cells[3].querySelector('.mail-person').innerText.trim(),
+            'Service : ' + row.dataset.service,
+            'Date : ' + cells[5].innerText.trim(),
+            'Statut : ' + row.dataset.status
+        ].join('\n');
+
+        window.alert(message);
+    }
+
+    function deleteCourier(row) {
+        const reference = row.querySelector('.mail-reference').textContent.trim();
+        if (!window.confirm(`Voulez-vous supprimer le courrier ${reference} de cette démonstration ?`)) return;
+        row.remove();
+        applyFilters();
+        showToast('Courrier supprimé de la démonstration.');
+    }
+
+    function exportCourriers() {
+        const rows = [...tableBody.querySelectorAll('tr')].filter(row => !row.hidden);
+        const data = [['Référence', 'Objet', 'Type', 'Expéditeur/Destinataire', 'Service', 'Date', 'Statut']];
+
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            data.push([
+                cells[0].innerText.trim(),
+                cells[1].querySelector('.mail-subject').innerText.trim(),
+                row.dataset.type,
+                cells[3].querySelector('.mail-person').innerText.trim(),
+                row.dataset.service,
+                cells[5].innerText.trim(),
+                row.dataset.status
+            ]);
+        });
+
+        const csv = '\uFEFF' + data.map(line =>
+            line.map(value => `"${String(value).replace(/"/g, '""')}"`).join(';')
+        ).join('\r\n');
+
+        const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'registre-courriers.csv';
+        link.click();
+        URL.revokeObjectURL(url);
+        showToast('Export CSV préparé.');
+    }
+
+    page.querySelectorAll('.mail-row-actions button').forEach(button => {
+        button.addEventListener('click', () => {
+            const row = button.closest('tr');
+            const action = button.dataset.action;
+            if (action === 'view') viewCourier(row);
+            if (action === 'edit') openModal(row);
+            if (action === 'delete') deleteCourier(row);
+        });
+    });
+
+    tableBody.addEventListener('click', event => {
+        const button = event.target.closest('button[data-action]');
+        if (!button) return;
+        const row = button.closest('tr');
+        if (button.dataset.action === 'view') viewCourier(row);
+        if (button.dataset.action === 'edit') openModal(row);
+        if (button.dataset.action === 'delete') deleteCourier(row);
+    });
+
+    search.addEventListener('input', applyFilters);
+    typeFilter.addEventListener('change', applyFilters);
+    statusFilter.addEventListener('change', applyFilters);
+    serviceFilter.addEventListener('change', applyFilters);
+    form.addEventListener('submit', saveCourier);
+
+    modal.addEventListener('click', event => {
+        if (event.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && !modal.hidden) closeModal();
+    });
+
+    page.querySelectorAll('.mail-row-actions button').forEach(button => {
+        button.dataset.action = button.title === 'Consulter' ? 'view'
+            : button.title === 'Modifier' ? 'edit' : 'delete';
+    });
+
+    window.openCourierModal = () => openModal();
+    window.closeCourierModal = closeModal;
+    window.resetCourierFilters = resetFilters;
+    window.exportCourriers = exportCourriers;
+    window.viewCourier = button => viewCourier(button.closest('tr'));
+    window.editCourier = button => openModal(button.closest('tr'));
+    window.deleteCourier = button => deleteCourier(button.closest('tr'));
+
+    applyFilters();
+})();
+</script>
+{% endblock %}

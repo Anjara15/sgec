@@ -1,0 +1,26 @@
+{% extends 'layouts/app.html.twig' %}
+{% set pageHeading = title %}
+{% block title %}{{ title }} | SGEC{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <h1 class="page-title">{{ title }}</h1>
+        <p class="muted mb-0">Définissez les informations et le responsable du service.</p>
+    </div>
+</div>
+<div class="panel">
+    <div class="panel-header"><h2 class="h6 mb-0">Informations du service</h2></div>
+    <div class="form-section">
+        {{ form_start(form) }}
+            {{ form_row(form.nom) }}
+            {{ form_row(form.description) }}
+            {{ form_row(form.responsable) }}
+            {{ form_row(form.statut) }}
+            <div class="form-actions">
+                <button class="btn btn-primary" type="submit"><i class="bi bi-check2 me-1"></i>Enregistrer</button>
+                <a href="{{ path('app_service_index') }}" class="btn btn-outline-secondary">Annuler</a>
+            </div>
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}

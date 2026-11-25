@@ -1,0 +1,11 @@
+{% extends 'layouts/app.html.twig' %}
+{% set pageHeading = 'Mon espace' %}
+{% block title %}Utilisateur | SGEC{% endblock %}
+{% block content %}
+<div class="mb-4">
+    <h1 class="page-title">Bonjour, {{ app.user.prenom }}</h1>
+    <p class="muted">Consultez vos courriers et notifications.</p>
+</div>
+{% include 'dashboard/_stats.html.twig' %}
+{% include 'dashboard/_recents.html.twig' %}
+{% endblock %}

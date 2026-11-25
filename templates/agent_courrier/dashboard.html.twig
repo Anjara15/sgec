@@ -1,0 +1,221 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% set pageHeading = 'Gestion des courriers' %}
+{% set roleLabel = 'Agent de courrier' %}
+{% set demoUser = 'Sophie Bernard' %}
+
+{% set menu = [
+    {label: 'Tableau de bord', icon: 'bi-grid-1x2', url: '/agent-courrier/dashboard', active: true},
+    {label: 'Enregistrer un courrier', icon: 'bi-plus-square', url: '/agent-courrier/courriers/nouveau'},
+    {label: 'Courriers entrants', icon: 'bi-box-arrow-in-down', url: '/agent-courrier/courriers/entrants'},
+    {label: 'Courriers sortants', icon: 'bi-box-arrow-up-right', url: '/agent-courrier/courriers/sortants'},
+    {label: 'Courriers internes', icon: 'bi-envelope', url: '/agent-courrier/courriers/internes'},
+    {label: 'Transmissions', icon: 'bi-send', url: '/agent-courrier/transmissions'},
+    {label: 'Archives', icon: 'bi-archive', url: '/agent-courrier/archives'},
+    {label: 'Recherche', icon: 'bi-search', url: '/agent-courrier/recherche'}
+] %}
+
+{% block title %}Espace Agent de courrier | SGEC{% endblock %}
+
+{% block dashboard_content %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="page-title">Bonjour, Mme Bernard 👋</h1>
+        <p class="muted">Gérez les courriers entrants, sortants et internes.</p>
+    </div>
+
+    <a href="/agent-courrier/courriers/nouveau" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-2"></i>
+        Enregistrer un courrier
+    </a>
+</div>
+
+{# Statistiques #}
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <span class="muted">Reçus aujourd'hui</span>
+                <i class="bi bi-inbox fs-4 text-primary"></i>
+            </div>
+            <div class="stat-number">16</div>
+            <small class="muted">Courriers réceptionnés</small>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <span class="muted">À enregistrer</span>
+                <i class="bi bi-pencil-square fs-4 text-warning"></i>
+            </div>
+            <div class="stat-number">05</div>
+            <small class="text-warning">Saisie nécessaire</small>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <span class="muted">À transmettre</span>
+                <i class="bi bi-send fs-4 text-info"></i>
+            </div>
+            <div class="stat-number">09</div>
+            <small class="muted">Transmission à effectuer</small>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <span class="muted">À archiver</span>
+                <i class="bi bi-archive fs-4 text-success"></i>
+            </div>
+            <div class="stat-number">03</div>
+            <small class="muted">Traitement terminé</small>
+        </div>
+    </div>
+
+</div>
+
+{# Actions rapides #}
+<h5 class="fw-bold mb-3">Actions rapides</h5>
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-4">
+        <a href="/agent-courrier/courriers/nouveau" class="quick-action">
+            <i class="bi bi-file-earmark-plus text-primary"></i>
+            <div>
+                <div class="fw-bold">Nouveau courrier</div>
+                <small class="muted">Enregistrer un document</small>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-md-4">
+        <a href="/agent-courrier/transmissions" class="quick-action">
+            <i class="bi bi-send text-success"></i>
+            <div>
+                <div class="fw-bold">Transmettre</div>
+                <small class="muted">Orienter un courrier</small>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-md-4">
+        <a href="/agent-courrier/archives" class="quick-action">
+            <i class="bi bi-archive text-warning"></i>
+            <div>
+                <div class="fw-bold">Archives</div>
+                <small class="muted">Consulter les documents archivés</small>
+            </div>
+        </a>
+    </div>
+</div>
+
+{# Derniers courriers entrants #}
+<div class="panel">
+    <div class="panel-header">
+        <h5>Derniers courriers entrants</h5>
+        <a href="/agent-courrier/courriers/entrants"
+           class="btn btn-sm btn-outline-primary">
+            Voir tous
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Référence</th>
+                    <th>Expéditeur</th>
+                    <th>Objet</th>
+                    <th>Réception</th>
+                    <th>Service destinataire</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>ENT-2026-0001</td>
+                    <td>Ministère de l'Éducation</td>
+                    <td>Demande administrative</td>
+                    <td>28/10/2026</td>
+                    <td>Direction générale</td>
+                    <td>
+                        <span class="badge-status status-pending">À traiter</span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>ENT-2026-0002</td>
+                    <td>Citoyen Dupont</td>
+                    <td>Demande de document</td>
+                    <td>28/10/2026</td>
+                    <td>Service administratif</td>
+                    <td>
+                        <span class="badge-status status-done">Enregistré</span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>ENT-2026-0003</td>
+                    <td>Fournisseur ABC</td>
+                    <td>Facture</td>
+                    <td>28/10/2026</td>
+                    <td>Service financier</td>
+                    <td>
+                        <span class="badge-status status-progress">Transmis</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{# Dernières transmissions #}
+<div class="panel">
+    <div class="panel-header">
+        <h5>Dernières transmissions</h5>
+        <a href="/agent-courrier/transmissions"
+           class="btn btn-sm btn-outline-primary">
+            Voir toutes
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Référence</th>
+                    <th>Destinataire</th>
+                    <th>Date de transmission</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>ENT-2026-0003</td>
+                    <td>Service financier</td>
+                    <td>28/10/2026 09:30</td>
+                    <td>
+                        <span class="badge-status status-done">Transmis</span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>INT-2026-0004</td>
+                    <td>Direction générale</td>
+                    <td>28/10/2026 10:15</td>
+                    <td>
+                        <span class="badge-status status-pending">En attente de réception</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

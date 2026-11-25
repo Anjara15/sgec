@@ -1,0 +1,40 @@
+{% extends 'layouts/app.html.twig' %}
+{% set pageHeading = 'Archives' %}
+{% block title %}Archives | SGEC{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <h1 class="page-title">Archives</h1>
+        <p class="muted mb-0">Les courriers archivés restent consultables sans suppression physique.</p>
+    </div>
+</div>
+<div class="panel mb-3">
+    <div class="p-3">
+        {{ form_start(searchForm, {attr: {class: 'row g-2'}}) }}
+            <div class="col-md-4">{{ form_row(searchForm.reference) }}</div>
+            <div class="col-md-4">{{ form_row(searchForm.objet) }}</div>
+            <div class="col-md-4">{{ form_row(searchForm.type) }}</div>
+            <div class="col-12"><button class="btn btn-primary btn-sm">Rechercher</button></div>
+        {{ form_end(searchForm) }}
+    </div>
+</div>
+<div class="panel">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead><tr><th>Référence</th><th>Objet</th><th>Archivé le</th><th></th></tr></thead>
+            <tbody>
+            {% for c in courriers %}
+                <tr>
+                    <td>{{ c.reference }}</td>
+                    <td>{{ c.objet }}</td>
+                    <td>{{ c.dateArchivage ? c.dateArchivage|date('d/m/Y H:i') : '—' }}</td>
+                    <td><a href="{{ path('app_courrier_show', {id: c.id}) }}" class="btn btn-sm btn-outline-primary">Voir</a></td>
+                </tr>
+            {% else %}
+                <tr><td colspan="4" class="text-center muted py-4">Aucune archive</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

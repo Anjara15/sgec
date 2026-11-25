@@ -1,0 +1,32 @@
+{% extends 'layouts/app.html.twig' %}
+{% set pageHeading = 'Transmissions' %}
+{% block title %}Transmissions | SGEC{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <h1 class="page-title">Transmissions</h1>
+        <p class="muted mb-0">Consultez les courriers transmis et l’état de leur réception.</p>
+    </div>
+</div>
+<div class="panel">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead><tr><th>Courrier</th><th>Expéditeur</th><th>Destinataire</th><th>Date</th><th>État</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for t in transmissions %}
+                <tr>
+                    <td class="fw-semibold">{{ t.courrier.reference }}</td>
+                    <td>{{ t.expediteur }}</td>
+                    <td>{{ t.destinataire }}</td>
+                    <td class="text-nowrap">{{ t.dateTransmission|date('d/m/Y H:i') }}</td>
+                    <td><span class="badge-status {{ t.etat.value == 'envoye' ? 'status-progress' : (t.etat.value == 'recu' ? 'status-done' : (t.etat.value == 'annule' ? 'status-neutral' : 'status-rejected')) }}">{{ t.etat.label }}</span></td>
+                    <td><a href="{{ path('app_courrier_show', {id: t.courrier.id}) }}" class="btn btn-sm btn-outline-primary">Consulter</a></td>
+                </tr>
+            {% else %}
+                <tr><td colspan="6" class="empty-state">Aucune transmission à afficher.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Accusé de réception — {{ courrier.reference }}</title>
+    <style>body{font-family:Georgia,serif;margin:40px} .box{border:2px solid #163a5f;padding:24px}</style>
+</head>
+<body>
+<button onclick="window.print()">Imprimer</button>
+<div class="box">
+    <h1>Accusé de réception</h1>
+    <p>Nous accusons réception du courrier <strong>{{ courrier.reference }}</strong>.</p>
+    <p>Objet : {{ courrier.objet }}</p>
+    <p>Date d'enregistrement : {{ courrier.dateEnregistrement|date('d/m/Y H:i') }}</p>
+    <p>Statut actuel : {{ courrier.statut.label }}</p>
+    <p style="margin-top:40px">Signature / Cachet</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{% extends 'layouts/app.html.twig' %}
+{% set pageHeading = title %}
+{% block title %}{{ title }} | SGEC{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <h1 class="page-title">{{ title }}</h1>
+        <p class="muted mb-0">Configurez une valeur utilisée par le système.</p>
+    </div>
+</div>
+<div class="panel">
+    <div class="panel-header"><h2 class="h6 mb-0">Paramètre système</h2></div>
+    <div class="form-section">
+        {{ form_start(form) }}
+            {{ form_row(form.cle) }}
+            {{ form_row(form.valeur) }}
+            {{ form_row(form.description) }}
+            <div class="form-actions">
+                <button class="btn btn-primary" type="submit"><i class="bi bi-check2 me-1"></i>Enregistrer</button>
+                <a href="{{ path('app_parametre_index') }}" class="btn btn-outline-secondary">Annuler</a>
+            </div>
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}

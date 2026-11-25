@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="sidebar-backdrop" data-sidebar-close aria-hidden="true"></div>
+<div class="sidebar">
+    <div class="brand">
+        <span class="brand-mark" aria-hidden="true"><i class="bi bi-envelope-paper"></i></span>
+        <h4>SGEC</h4>
+        <p>Gestion électronique des courriers</p>
+    </div>
+
+    <div class="menu-label">Menu principal</div>
+
+    <nav class="nav flex-column" aria-label="Navigation principale">
+        {% for item in menu %}
+            <a
+                href="{{ item.url }}"
+                class="nav-link {{ item.active|default(false) ? 'active' : '' }}"
+                {% if item.active|default(false) %}aria-current="page"{% endif %}
+            >
+                <i class="bi {{ item.icon }}"></i>
+                <span>{{ item.label }}</span>
+            </a>
+        {% endfor %}
+    </nav>
+
+    <div class="mt-5 pt-3 border-top border-secondary">
+        <div class="d-flex align-items-center gap-2 px-2">
+            <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center"
+                 style="width:40px;height:40px;">
+                <i class="bi bi-person-fill fs-5"></i>
+            </div>
+
+            <div>
+                <div class="fw-bold">{{ demoUser|default('Utilisateur') }}</div>
+                <small class="text-white-50">{{ roleLabel }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main-content">
+    <header class="topbar">
+        <div class="d-flex align-items-center">
+            <button class="mobile-menu-toggle" type="button" data-sidebar-toggle aria-label="Ouvrir le menu" aria-expanded="false">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+            <h1 class="h5 mb-0">{{ pageHeading|default('SGEC') }}</h1>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn btn-light position-relative" type="button"
+                    aria-label="Notifications">
+                <i class="bi bi-bell fs-5"></i>
+            </button>
+
+            <div class="text-end d-none d-sm-block">
+                <div class="fw-semibold">{{ demoUser|default('Utilisateur') }}</div>
+                <small class="muted">{{ roleLabel }}</small>
+            </div>
+        </div>
+    </header>
+
+    <main class="page-content">
+        {% block dashboard_content %}{% endblock %}
+    </main>
+</div>
+{% endblock %}

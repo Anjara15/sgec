@@ -1,0 +1,32 @@
+{% extends 'layouts/app.html.twig' %}
+{% set pageHeading = title %}
+{% block title %}{{ title }} | SGEC{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <h1 class="page-title">{{ title }}</h1>
+        <p class="muted mb-0">Renseignez le profil et les accès de l’utilisateur.</p>
+    </div>
+</div>
+<div class="panel">
+    <div class="panel-header"><h2 class="h6 mb-0">Informations du compte</h2></div>
+    <div class="form-section">
+        {{ form_start(form) }}
+            <div class="row g-3">
+                <div class="col-md-6">{{ form_row(form.prenom) }}</div>
+                <div class="col-md-6">{{ form_row(form.nom) }}</div>
+                <div class="col-md-6">{{ form_row(form.email) }}</div>
+                <div class="col-md-6">{{ form_row(form.plainPassword) }}</div>
+                <div class="col-md-6">{{ form_row(form.service) }}</div>
+                <div class="col-md-6">{{ form_row(form.statut) }}</div>
+                <div class="col-md-6">{{ form_row(form.roles) }}</div>
+                <div class="col-md-6">{{ form_row(form.customRoles) }}</div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-primary" type="submit"><i class="bi bi-check2 me-1"></i>Enregistrer</button>
+                <a href="{{ path('app_user_index') }}" class="btn btn-outline-secondary">Annuler</a>
+            </div>
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}

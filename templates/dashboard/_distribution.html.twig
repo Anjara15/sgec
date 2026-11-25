@@ -1,0 +1,59 @@
+{% set distributionTotal = stats.courriers + stats.archives %}
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <section class="panel distribution-panel" aria-labelledby="distribution-types-title">
+            <h2 class="distribution-title" id="distribution-types-title">Répartition par type</h2>
+            <p class="muted small mb-3">Volume de courriers enregistré par catégorie.</p>
+            {% for type, total in stats.par_type %}
+                {% set typeLabel = type == 'entrant' ? 'Entrants' : (type == 'sortant' ? 'Sortants' : (type == 'interne' ? 'Internes' : type)) %}
+                <div class="distribution-row">
+                    <div class="distribution-label">
+                        <span>{{ typeLabel }}</span>
+                        <strong>{{ total }}</strong>
+                    </div>
+                    <div class="distribution-track" role="img" aria-label="{{ typeLabel }} : {{ total }} courrier(s)">
+                        <div class="distribution-bar {{ type == 'sortant' ? 'type-sortant' : (type == 'interne' ? 'type-interne' : '') }}"
+                             style="width: {{ distributionTotal > 0 ? ((total / distributionTotal) * 100)|round : 0 }}%"></div>
+                    </div>
+                </div>
+            {% else %}
+                <p class="muted small mb-0">Aucune donnée disponible.</p>
+            {% endfor %}
+        </section>
+    </div>
+    <div class="col-lg-6">
+        <section class="panel distribution-panel" aria-labelledby="distribution-status-title">
+            <h2 class="distribution-title" id="distribution-status-title">Répartition par statut</h2>
+            <p class="muted small mb-3">État actuel des courriers dans le système.</p>
+            {% for status, total in stats.par_statut %}
+                {% set statusLabel = status == 'brouillon' ? 'Brouillon'
+                    : (status == 'enregistre' ? 'Enregistré'
+                    : (status == 'en_validation' ? 'En validation'
+                    : (status == 'valide' ? 'Validé'
+                    : (status == 'rejete' ? 'Rejeté'
+                    : (status == 'a_corriger' ? 'À corriger'
+                    : (status == 'en_transmission' ? 'En transmission'
+                    : (status == 'recu' ? 'Reçu'
+                    : (status == 'traite' ? 'Traité'
+                    : (status == 'archive' ? 'Archivé' : status))))))))) %}
+                {% set statusClass = status == 'rejete' ? 'status-error'
+                    : (status in ['enregistre', 'en_validation', 'a_corriger'] ? 'status-warning'
+                    : (status in ['valide', 'recu', 'traite'] ? 'status-success'
+                    : (status == 'archive' ? 'status-neutral' : ''))) %}
+                <div class="distribution-row">
+                    <div class="distribution-label">
+                        <span>{{ statusLabel }}</span>
+                        <strong>{{ total }}</strong>
+                    </div>
+                    <div class="distribution-track" role="img" aria-label="{{ statusLabel }} : {{ total }} courrier(s)">
+                        <div class="distribution-bar {{ statusClass }}"
+                             style="width: {{ distributionTotal > 0 ? ((total / distributionTotal) * 100)|round : 0 }}%"></div>
+                    </div>
+                </div>
+            {% else %}
+                <p class="muted small mb-0">Aucune donnée disponible.</p>
+            {% endfor %}
+        </section>
+    </div>
+</div>

@@ -1,0 +1,14 @@
+{% extends 'layouts/app.html.twig' %}
+{% set pageHeading = 'Rapport' %}
+{% block title %}Rapport | SGEC{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <h1 class="page-title">Rapport statistique</h1>
+        <p class="muted mb-0">Synthèse des volumes et de l’état des courriers.</p>
+    </div>
+    <button class="btn btn-outline-secondary" type="button" onclick="window.print()"><i class="bi bi-printer me-2"></i>Imprimer</button>
+</div>
+{% include 'dashboard/_stats.html.twig' %}
+{% include 'dashboard/_distribution.html.twig' %}
+{% endblock %}

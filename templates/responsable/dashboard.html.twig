@@ -1,0 +1,204 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% set pageHeading = 'Tableau de bord du responsable' %}
+{% set roleLabel = 'Responsable de service' %}
+{% set demoUser = 'Marie Dupont' %}
+
+{% set menu = [
+    {label: 'Tableau de bord', icon: 'bi-grid-1x2', url: '/responsable/dashboard', active: true},
+    {label: 'Courriers à valider', icon: 'bi-clipboard-check', url: '/responsable/validations'},
+    {label: 'Courriers du service', icon: 'bi-envelope-paper', url: '/responsable/courriers'},
+    {label: 'Affectations', icon: 'bi-person-check', url: '/responsable/affectations'},
+    {label: 'Transmissions', icon: 'bi-send', url: '/responsable/transmissions'},
+    {label: 'Historique', icon: 'bi-clock-history', url: '/responsable/historique'},
+    {label: 'Rapports', icon: 'bi-bar-chart', url: '/responsable/rapports'}
+] %}
+
+{% block title %}Espace Responsable | SGEC{% endblock %}
+
+{% block dashboard_content %}
+
+<div class="mb-4">
+    <h1 class="page-title">Bonjour, Mme Dupont 👋</h1>
+    <p class="muted">Supervisez les courriers et les activités de votre service.</p>
+
+    <span class="badge bg-primary-subtle text-primary p-2">
+        <i class="bi bi-building me-1"></i>
+        Direction administrative
+    </span>
+</div>
+
+{# Direction administrative  #}
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <span class="muted">À valider</span>
+                <i class="bi bi-clipboard-check fs-4 text-primary"></i>
+            </div>
+            <div class="stat-number">12</div>
+            <small class="text-warning">Décisions attendues</small>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <span class="muted">En cours</span>
+                <i class="bi bi-hourglass-split fs-4 text-info"></i>
+            </div>
+            <div class="stat-number">18</div>
+            <small class="muted">Courriers en traitement</small>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <span class="muted">En retard</span>
+                <i class="bi bi-exclamation-triangle fs-4 text-danger"></i>
+            </div>
+            <div class="stat-number">04</div>
+            <small class="text-danger">Échéance dépassée</small>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <span class="muted">Traités ce mois</span>
+                <i class="bi bi-check-circle fs-4 text-success"></i>
+            </div>
+            <div class="stat-number">36</div>
+            <small class="text-success">Traitements terminés</small>
+        </div>
+    </div>
+</div>
+
+{# Courriers à valider  #}
+<div class="panel">
+    <div class="panel-header">
+        <h5>Courriers à valider</h5>
+        <a href="/responsable/validations" class="btn btn-primary btn-sm">
+            Voir les demandes
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Référence</th>
+                    <th>Objet</th>
+                    <th>Priorité</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>ENT-2026-0012</td>
+                    <td>Demande administrative</td>
+                    <td><span class="badge bg-danger-subtle text-danger">Haute</span></td>
+                    <td>18/10/2026</td>
+                    <td>
+                        <a href="/responsable/courriers/1" class="btn btn-sm btn-outline-primary">
+                            Consulter
+                        </a>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>ENT-2026-0013</td>
+                    <td>Rapport trimestriel</td>
+                    <td><span class="badge bg-warning-subtle text-warning-emphasis">Moyenne</span></td>
+                    <td>19/10/2026</td>
+                    <td>
+                        <a href="/responsable/courriers/2" class="btn btn-sm btn-outline-primary">
+                            Consulter
+                        </a>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>SORT-2026-0009</td>
+                    <td>Réponse à un partenaire</td>
+                    <td><span class="badge bg-danger-subtle text-danger">Haute</span></td>
+                    <td>20/10/2026</td>
+                    <td>
+                        <a href="/responsable/courriers/3" class="btn btn-sm btn-outline-primary">
+                            Consulter
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+ {# Affectations récentes  #}
+<div class="row g-3">
+    <div class="col-12 col-lg-6">
+        <div class="panel h-100">
+            <div class="panel-header">
+                <h5>Affectations récentes</h5>
+                <a href="/responsable/affectations" class="small text-decoration-none">Voir tout</a>
+            </div>
+
+            <div class="p-3">
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <div>
+                        <div class="fw-semibold">ENT-2026-0012</div>
+                        <small class="muted">Demande administrative</small>
+                    </div>
+                    <span class="badge-status status-progress">En cours</span>
+                </div>
+
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <div>
+                        <div class="fw-semibold">INT-2026-0007</div>
+                        <small class="muted">Note interne</small>
+                    </div>
+                    <span class="badge-status status-pending">À traiter</span>
+                </div>
+
+                <div class="d-flex justify-content-between py-2">
+                    <div>
+                        <div class="fw-semibold">ENT-2026-0015</div>
+                        <small class="muted">Réclamation</small>
+                    </div>
+                    <span class="badge-status status-done">Traité</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# action rapides  #}
+    <div class="col-12 col-lg-6">
+        <div class="panel h-100">
+            <div class="panel-header">
+                <h5>Actions rapides</h5>
+            </div>
+
+            <div class="p-3 d-grid gap-3">
+                <a href="/responsable/validations" class="quick-action">
+                    <i class="bi bi-check2-square text-success"></i>
+                    <span>Traiter les validations en attente</span>
+                </a>
+
+                <a href="/responsable/affectations" class="quick-action">
+                    <i class="bi bi-person-plus text-primary"></i>
+                    <span>Affecter un courrier à un agent</span>
+                </a>
+
+                <a href="/responsable/rapports" class="quick-action">
+                    <i class="bi bi-file-earmark-bar-graph text-warning"></i>
+                    <span>Consulter les rapports du service</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

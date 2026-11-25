@@ -1,0 +1,14 @@
+{% extends 'layouts/app.html.twig' %}
+{% set pageHeading = 'Espace agent de courrier' %}
+{% block title %}Agent | SGEC{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title">Bonjour, {{ app.user.prenom }}</h1>
+        <p class="muted mb-0">Enregistrement, transmission et suivi des courriers.</p>
+    </div>
+    <a href="{{ path('app_courrier_new') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nouveau courrier</a>
+</div>
+{% include 'dashboard/_stats.html.twig' %}
+{% include 'dashboard/_recents.html.twig' %}
+{% endblock %}

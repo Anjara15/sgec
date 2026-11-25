@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription | SGEC{% endblock %}
+
+{% block body %}
+<main class="login-page">
+    <section class="login-card">
+        <div class="text-center mb-4">
+            <img src="{{ asset('uploads/pieces_jointes/logo.jpeg') }}" alt="Logo SGEC" class="login-logo">
+            <p class="login-eyebrow">Gestion du courrier</p>
+            <h1 class="login-title">Créer un compte</h1>
+            <p class="muted mb-0">Renseignez vos informations pour rejoindre SGEC.</p>
+        </div>
+        {{ form_start(form) }}
+            {{ form_row(form.prenom) }}
+            {{ form_row(form.nom) }}
+            {{ form_row(form.email) }}
+            {{ form_row(form.plainPassword) }}
+            <button class="btn btn-primary w-100 py-2 mt-3" type="submit"><i class="bi bi-person-plus me-2"></i>Créer mon compte</button>
+        {{ form_end(form) }}
+        <p class="text-center mt-4 mb-0 login-footer">
+            Déjà inscrit ? <a href="{{ path('app_login') }}">Se connecter</a>
+        </p>
+    </section>
+</main>
+{% endblock %}

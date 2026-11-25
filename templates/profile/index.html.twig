@@ -1,0 +1,74 @@
+{% extends 'layouts/app.html.twig' %}
+{% set pageHeading = 'Mon profil' %}
+{% block title %}Mon profil | SGEC{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <div>
+        <h1 class="page-title">Mon profil</h1>
+        <p class="muted mb-0">Consultez et mettez à jour les informations de votre compte.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <section class="panel h-100">
+            <div class="panel-header">
+                <h2 class="h6 mb-0">Informations du compte</h2>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <span class="user-avatar topbar-avatar" aria-hidden="true"><i class="bi bi-person-fill fs-5"></i></span>
+                    <div class="min-w-0">
+                        <div class="fw-semibold">{{ user.nomComplet }}</div>
+                        <div class="muted small">{{ roleLabel }}</div>
+                    </div>
+                </div>
+                <dl class="row courrier-metadata mb-0">
+                    <dt class="col-5">E-mail</dt>
+                    <dd class="col-7 text-break">{{ user.email }}</dd>
+                    <dt class="col-5">Service</dt>
+                    <dd class="col-7">{{ user.service ? user.service.nom : 'Non attribué' }}</dd>
+                    <dt class="col-5">Statut</dt>
+                    <dd class="col-7"><span class="badge-status {{ user.statut.value == 'actif' ? 'status-done' : 'status-pending' }}">{{ user.statut.label }}</span></dd>
+                    <dt class="col-5">Membre depuis</dt>
+                    <dd class="col-7">{{ user.dateCreation|date('d/m/Y') }}</dd>
+                </dl>
+                <p class="muted small mb-0 mt-3">
+                    Le rôle, le statut et le service sont gérés par l’administration et ne peuvent pas être modifiés depuis votre profil.
+                </p>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-lg-8">
+        <section class="panel">
+            <div class="panel-header">
+                <h2 class="h6 mb-0">Modifier mes informations</h2>
+            </div>
+            <div class="form-section">
+                {{ form_start(form) }}
+                    {{ form_errors(form) }}
+                    <div class="row g-3">
+                        <div class="col-md-6">{{ form_row(form.prenom) }}</div>
+                        <div class="col-md-6">{{ form_row(form.nom) }}</div>
+                        <div class="col-12">{{ form_row(form.email) }}</div>
+                    </div>
+                    <hr class="my-4">
+                    <h3 class="h6 mb-1">Changer le mot de passe</h3>
+                    <p class="muted small mb-3">Laissez ces champs vides pour conserver votre mot de passe actuel.</p>
+                    <div class="row g-3">
+                        <div class="col-md-6">{{ form_row(form.plainPassword.first) }}</div>
+                        <div class="col-md-6">{{ form_row(form.plainPassword.second) }}</div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-check2 me-1" aria-hidden="true"></i>Enregistrer les modifications
+                        </button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

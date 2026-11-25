@@ -1,0 +1,185 @@
+{% extends 'base.html.twig' %}
+
+{% set currentUser = app.user %}
+{% set roleLabel = is_granted('ROLE_ADMIN') ? 'Administrateur'
+    : (is_granted('ROLE_RESPONSABLE') ? 'Responsable'
+    : (is_granted('ROLE_AGENT_COURRIER') ? 'Agent de courrier' : 'Utilisateur')) %}
+
+{% set workspaceMenu = [
+    {label: 'Tableau de bord', icon: 'bi-grid-1x2', route: 'app_dashboard'},
+    {label: 'Courriers', icon: 'bi-envelope-paper', route: 'app_courrier_index'},
+    {label: 'Archives', icon: 'bi-archive', route: 'app_courrier_archives'},
+    {label: 'Transmissions', icon: 'bi-arrow-left-right', route: 'app_transmission_index'},
+    {label: 'Notifications', icon: 'bi-bell', route: 'app_notification_index'},
+] %}
+
+{% set adminMenu = [] %}
+{% if is_granted('ROLE_ADMIN') %}
+    {% set adminMenu = [
+        {label: 'Utilisateurs', icon: 'bi-people', route: 'app_user_index'},
+        {label: 'Rôles', icon: 'bi-shield-lock', route: 'app_role_index'},
+        {label: 'Services', icon: 'bi-building', route: 'app_service_index'},
+        {label: 'Journal', icon: 'bi-clock-history', route: 'app_journal_index'},
+        {label: 'Paramètres', icon: 'bi-gear', route: 'app_parametre_index'},
+    ] %}
+{% endif %}
+
+{% set reportMenu = [] %}
+{% if is_granted('ROLE_RESPONSABLE') %}
+    {% set reportMenu = [
+        {label: 'Rapport', icon: 'bi-bar-chart', route: 'app_export_rapport'},
+    ] %}
+{% endif %}
+
+{% set currentRoute = app.request.attributes.get('_route') %}
+{% set relatedMenuRoutes = {
+    'app_courrier_index': ['app_courrier_new', 'app_courrier_show', 'app_courrier_edit', 'app_courrier_soumettre', 'app_courrier_valider', 'app_courrier_transmettre', 'app_courrier_archiver', 'app_courrier_print'],
+    'app_transmission_index': ['app_transmission_receptionner'],
+    'app_notification_index': ['app_notification_read'],
+    'app_user_index': ['app_user_new', 'app_user_edit', 'app_user_delete'],
+    'app_role_index': ['app_role_new', 'app_role_edit', 'app_role_delete'],
+    'app_service_index': ['app_service_new', 'app_service_edit', 'app_service_delete'],
+    'app_parametre_index': ['app_parametre_new', 'app_parametre_edit']
+} %}
+
+{% block body %}
+<div class="sidebar-backdrop" data-sidebar-close aria-hidden="true"></div>
+<div class="sidebar">
+    <div class="brand">
+        <span class="brand-mark" aria-hidden="true"><i class="bi bi-envelope-paper"></i></span>
+        <div class="brand-name">
+            <h4>SGEC</h4>
+            <p>Système de Gestion Électronique des Courriers</p>
+        </div>
+    </div>
+
+    <div class="menu-label">Espace de travail</div>
+    <nav class="nav flex-column" aria-label="Navigation principale">
+        {% for item in workspaceMenu %}
+            {% set isActive = currentRoute == item.route or currentRoute in (relatedMenuRoutes[item.route]|default([])) %}
+            <a href="{{ path(item.route) }}"
+               class="nav-link {{ isActive ? 'active' : '' }}"
+               title="{{ item.label }}"
+               {% if isActive %}aria-current="page"{% endif %}>
+                <i class="bi {{ item.icon }}"></i>
+                <span>{{ item.label }}</span>
+            </a>
+        {% endfor %}
+
+        {% if adminMenu is not empty %}
+            <div class="menu-label mt-4">Administration</div>
+            {% for item in adminMenu %}
+                {% set isActive = currentRoute == item.route or currentRoute in (relatedMenuRoutes[item.route]|default([])) %}
+                <a href="{{ path(item.route) }}"
+                   class="nav-link {{ isActive ? 'active' : '' }}"
+                   title="{{ item.label }}"
+                   {% if isActive %}aria-current="page"{% endif %}>
+                    <i class="bi {{ item.icon }}"></i>
+                    <span>{{ item.label }}</span>
+                </a>
+            {% endfor %}
+        {% endif %}
+
+        {% for item in reportMenu %}
+            {% set isActive = currentRoute == item.route %}
+            <a href="{{ path(item.route) }}"
+               class="nav-link {{ isActive ? 'active' : '' }}"
+               title="{{ item.label }}"
+               {% if isActive %}aria-current="page"{% endif %}>
+                <i class="bi {{ item.icon }}"></i>
+                <span>{{ item.label }}</span>
+            </a>
+        {% endfor %}
+    </nav>
+
+    <div class="mt-5 pt-3 border-top border-secondary">
+        <div class="d-flex align-items-center gap-2 px-2 mb-3">
+            <div class="user-avatar">
+                <i class="bi bi-person-fill fs-5"></i>
+            </div>
+            <div class="sidebar-user-copy">
+                <div class="fw-bold">{{ currentUser ? currentUser.nomComplet : 'Invité' }}</div>
+                <small class="text-white-50">{{ roleLabel }}</small>
+            </div>
+        </div>
+        <a href="{{ path('app_logout') }}" class="nav-link" title="Déconnexion">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Déconnexion</span>
+        </a>
+    </div>
+</div>
+
+<div class="main-content">
+    <header class="topbar">
+        <div class="topbar-start">
+            <button class="sidebar-collapse-toggle" type="button" data-sidebar-collapse aria-label="Réduire le menu" aria-pressed="false">
+                <i class="bi bi-layout-sidebar-inset"></i>
+            </button>
+            <button class="mobile-menu-toggle" type="button" data-sidebar-toggle aria-label="Ouvrir le menu" aria-expanded="false">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+            <div class="topbar-heading">
+                <h1 class="h5 mb-0">{{ pageHeading|default('SGEC') }}</h1>
+                <nav aria-label="Fil d’Ariane">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}">Accueil</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ pageHeading|default('Espace de travail') }}</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <a href="{{ path('app_notification_index') }}" class="topbar-icon-button" aria-label="Notifications">
+                <i class="bi bi-bell fs-5"></i>
+            </a>
+            <div class="dropdown">
+                <button class="profile-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="user-avatar topbar-avatar" aria-hidden="true"><i class="bi bi-person-fill"></i></span>
+                    <span class="profile-copy">
+                        <span class="profile-name">{{ currentUser ? currentUser.nomComplet : 'Invité' }}</span>
+                        <small class="muted">{{ roleLabel }}</small>
+                    </span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end profile-menu">
+                    <li class="profile-menu-heading">
+                        <strong>{{ currentUser ? currentUser.nomComplet : 'Invité' }}</strong>
+                        <small>{{ roleLabel }}</small>
+                    </li>
+                    {% if currentUser %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li class="profile-menu-detail">
+                            <span>E-mail</span>
+                            <strong>{{ currentUser.email }}</strong>
+                        </li>
+                        <li class="profile-menu-detail">
+                            <span>Service</span>
+                            <strong>{{ currentUser.service ? currentUser.service.nom : 'Non attribué' }}</strong>
+                        </li>
+                        <li class="profile-menu-detail">
+                            <span>Statut</span>
+                            <strong>{{ currentUser.statut.label }}</strong>
+                        </li>
+                    {% endif %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ path('app_profile') }}"><i class="bi bi-person-gear"></i> Modifier mon profil</a></li>
+                    <li><a class="dropdown-item" href="{{ path('app_notification_index') }}"><i class="bi bi-bell"></i> Notifications</a></li>
+                    <li><a class="dropdown-item" href="{{ path('app_logout') }}"><i class="bi bi-box-arrow-right"></i> Déconnexion</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main class="page-content">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label == 'danger' ? 'danger' : (label == 'success' ? 'success' : 'info') }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        {% block content %}{% endblock %}
+    </main>
+</div>
+{% endblock %}

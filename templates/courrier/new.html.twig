@@ -1,0 +1,15 @@
+{% extends 'layouts/app.html.twig' %}
+{% set pageHeading = 'Nouveau courrier' %}
+{% block title %}Nouveau courrier | SGEC{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <h1 class="page-title">Nouveau courrier</h1>
+        <p class="muted mb-0">Enregistrez les informations du courrier et ses pièces jointes.</p>
+    </div>
+</div>
+<div class="panel">
+    <div class="panel-header"><h2 class="h6 mb-0">Informations du courrier</h2></div>
+    <div class="form-section">{% include 'courrier/_form.html.twig' %}</div>
+</div>
+{% endblock %}

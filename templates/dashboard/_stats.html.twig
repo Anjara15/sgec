@@ -1,0 +1,72 @@
+<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3 mb-4">
+    <div class="col">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="muted">Courriers actifs</span>
+                <div class="stat-icon stat-icon-neutral"><i class="bi bi-envelope-paper"></i></div>
+            </div>
+            <div class="stat-number">{{ stats.courriers }}</div>
+            <small class="muted">Hors archives</small>
+        </div>
+    </div>
+    <div class="col">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="muted">Entrants</span>
+                <div class="stat-icon stat-icon-blue"><i class="bi bi-box-arrow-in-down-left"></i></div>
+            </div>
+            <div class="stat-number">{{ stats.entrants }}</div>
+            <small class="muted">Courriers reçus</small>
+        </div>
+    </div>
+    <div class="col">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="muted">Sortants</span>
+                <div class="stat-icon stat-icon-purple"><i class="bi bi-box-arrow-up-right"></i></div>
+            </div>
+            <div class="stat-number">{{ stats.sortants }}</div>
+            <small class="muted">Courriers envoyés</small>
+        </div>
+    </div>
+    <div class="col">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="muted">Internes</span>
+                <div class="stat-icon stat-icon-blue"><i class="bi bi-arrow-left-right"></i></div>
+            </div>
+            <div class="stat-number">{{ stats.par_type.interne|default(0) }}</div>
+            <small class="muted">Courriers internes</small>
+        </div>
+    </div>
+    <div class="col">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="muted">En attente</span>
+                <div class="stat-icon stat-icon-warning"><i class="bi bi-hourglass-split"></i></div>
+            </div>
+            <div class="stat-number">{{ stats.en_attente }}</div>
+            <small class="text-warning">À traiter / valider</small>
+        </div>
+    </div>
+    <div class="col">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="muted">Traités</span>
+                <div class="stat-icon stat-icon-success"><i class="bi bi-check2-circle"></i></div>
+            </div>
+            <div class="stat-number">{{ stats.traites }}</div>
+            <small class="muted">Traitement terminé</small>
+        </div>
+    </div>
+    <div class="col">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="muted">Archivés</span>
+                <div class="stat-icon stat-icon-neutral"><i class="bi bi-archive"></i></div>
+            </div>
+            <div class="stat-number">{{ stats.archives }}</div>
+            <small class="muted">Conservation sécurisée</small>
+        </div>
+    </div>
+</div>

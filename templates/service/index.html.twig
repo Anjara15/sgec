@@ -1,0 +1,38 @@
+{% extends 'layouts/app.html.twig' %}
+{% set pageHeading = 'Services' %}
+{% block title %}Services | SGEC{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <h1 class="page-title">Services</h1>
+        <p class="muted mb-0">Consultez les services, leurs responsables et leurs effectifs.</p>
+    </div>
+    <a href="{{ path('app_service_new') }}" class="btn btn-primary"><i class="bi bi-building-add me-2"></i>Nouveau service</a>
+</div>
+<div class="panel">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead><tr><th>Nom du service</th><th>Responsable</th><th>Statut</th><th>Effectif</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for s in services %}
+                <tr>
+                    <td class="fw-semibold">{{ s.nom }}</td>
+                    <td>{{ s.responsable ?: '—' }}</td>
+                    <td><span class="badge bg-light text-dark border">{{ s.statut }}</span></td>
+                    <td><span class="badge bg-primary-subtle text-primary">{{ s.utilisateurs|length }}</span></td>
+                    <td class="text-nowrap">
+                        <a href="{{ path('app_service_edit', {id: s.id}) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil me-1"></i>Modifier</a>
+                        <form method="post" action="{{ path('app_service_delete', {id: s.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ s.id) }}">
+                            <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-trash me-1"></i>Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="5" class="empty-state">Aucun service enregistré.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,210 @@
+{% extends 'layouts/dashboard.html.twig' %}
+
+{% set title = 'Administration - SGEC' %}
+{% set pageHeading = 'Tableau de bord' %}
+{% set roleLabel = 'Administrateur' %}
+{% set demoUser = 'Admin SGEC' %}
+
+{% set menu = [
+    {label: 'Tableau de bord', icon: 'bi-grid-1x2', url: '/admin/dashboard', active: true},
+    {label: 'Utilisateurs', icon: 'bi-people', url: '/admin/utilisateurs'},
+    {label: 'Rôles et permissions', icon: 'bi-shield-lock', url: '/admin/roles'},
+    {label: 'Services', icon: 'bi-building', url: '/admin/services'},
+    {label: 'Tous les courriers', icon: 'bi-envelope-paper', url: '/admin/courriers'},
+    {label: 'Statistiques', icon: 'bi-bar-chart', url: '/admin/statistiques'},
+    {label: 'Journal d’activité', icon: 'bi-clock-history', url: '/admin/historique'},
+    {label: 'Paramètres', icon: 'bi-gear', url: '/admin/parametres'}
+] %}
+
+{% block title %}Administration | SGEC{% endblock %}
+
+{% block dashboard_content %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="page-title">Bonjour, Administrateur 👋</h1>
+        <p class="muted mb-0">Voici un aperçu général de votre système.</p>
+    </div>
+
+    <span class="badge bg-white text-dark border p-2">
+        <i class="bi bi-calendar3 me-2"></i>
+        {{ "now"|date("d/m/Y") }}
+    </span>
+</div>
+
+{# Statistiques globales #}
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="muted">Utilisateurs actifs</span>
+                <div class="stat-icon bg-primary-subtle text-primary">
+                    <i class="bi bi-people"></i>
+                </div>
+            </div>
+            <div class="stat-number">48</div>
+            <small class="text-success">
+                <i class="bi bi-check-circle"></i> Comptes actifs
+            </small>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="muted">Services</span>
+                <div class="stat-icon bg-success-subtle text-success">
+                    <i class="bi bi-building"></i>
+                </div>
+            </div>
+            <div class="stat-number">08</div>
+            <small class="muted">Services enregistrés</small>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="muted">Courriers enregistrés</span>
+                <div class="stat-icon bg-info-subtle text-info">
+                    <i class="bi bi-envelope-paper"></i>
+                </div>
+            </div>
+            <div class="stat-number">1 284</div>
+            <small class="muted">Toutes catégories</small>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="muted">En attente</span>
+                <div class="stat-icon bg-warning-subtle text-warning">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+            </div>
+            <div class="stat-number">23</div>
+            <small class="text-warning">À surveiller</small>
+        </div>
+    </div>
+
+</div>
+
+{# Actions rapides #}
+<h5 class="fw-bold mb-3">Actions rapides</h5>
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-4">
+        <a href="/admin/utilisateurs/nouveau" class="quick-action">
+            <i class="bi bi-person-plus text-primary"></i>
+            <div>
+                <div class="fw-bold">Ajouter un utilisateur</div>
+                <small class="muted">Créer un nouveau compte</small>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-md-4">
+        <a href="/admin/services" class="quick-action">
+            <i class="bi bi-building-add text-success"></i>
+            <div>
+                <div class="fw-bold">Gérer les services</div>
+                <small class="muted">Organiser les départements</small>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-md-4">
+        <a href="/admin/statistiques" class="quick-action">
+            <i class="bi bi-file-earmark-bar-graph text-warning"></i>
+            <div>
+                <div class="fw-bold">Voir les rapports</div>
+                <small class="muted">Consulter les statistiques</small>
+            </div>
+        </a>
+    </div>
+</div>
+
+{# Tableau des derniers courriers #}
+<div class="panel">
+    <div class="panel-header">
+        <h5>Derniers courriers</h5>
+        <a href="/admin/courriers" class="btn btn-sm btn-outline-primary">
+            Voir tous
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Référence</th>
+                    <th>Objet</th>
+                    <th>Type</th>
+                    <th>Service</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>ENT-2026-0001</td>
+                    <td>Demande administrative</td>
+                    <td>Entrant</td>
+                    <td>Direction générale</td>
+                    <td><span class="badge-status status-pending">À traiter</span></td>
+                </tr>
+
+                <tr>
+                    <td>SORT-2026-0002</td>
+                    <td>Réponse à une demande</td>
+                    <td>Sortant</td>
+                    <td>Secrétariat</td>
+                    <td><span class="badge-status status-progress">En validation</span></td>
+                </tr>
+
+                <tr>
+                    <td>INT-2026-0003</td>
+                    <td>Note de service</td>
+                    <td>Interne</td>
+                    <td>Ressources humaines</td>
+                    <td><span class="badge-status status-done">Traité</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{# Activités récentes #}
+<div class="panel">
+    <div class="panel-header">
+        <h5><i class="bi bi-clock-history me-2"></i>Activités récentes</h5>
+    </div>
+
+    <div class="p-3">
+        <div class="d-flex gap-3 mb-3">
+            <i class="bi bi-person-plus fs-4 text-primary"></i>
+            <div>
+                <div class="fw-semibold">Création d'un compte utilisateur</div>
+                <small class="muted">Exemple de journal d'activité</small>
+            </div>
+        </div>
+
+        <div class="d-flex gap-3 mb-3">
+            <i class="bi bi-envelope-check fs-4 text-success"></i>
+            <div>
+                <div class="fw-semibold">Enregistrement d'un courrier</div>
+                <small class="muted">Exemple de journal d'activité</small>
+            </div>
+        </div>
+
+        <div class="d-flex gap-3">
+            <i class="bi bi-gear fs-4 text-warning"></i>
+            <div>
+                <div class="fw-semibold">Mise à jour des paramètres</div>
+                <small class="muted">Exemple de journal d'activité</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

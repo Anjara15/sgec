@@ -1,0 +1,37 @@
+{% extends 'layouts/app.html.twig' %}
+{% set pageHeading = 'Rôles' %}
+{% block title %}Rôles | SGEC{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <h1 class="page-title">Rôles et permissions</h1>
+        <p class="muted mb-0">Définissez et maintenez les droits attribués aux profils.</p>
+    </div>
+    <a href="{{ path('app_role_new') }}" class="btn btn-primary"><i class="bi bi-shield-plus me-2"></i>Nouveau rôle</a>
+</div>
+<div class="panel">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead><tr><th>Rôle</th><th>Description</th><th>Permissions</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for r in roles %}
+                <tr>
+                    <td class="fw-semibold">{{ r.nom }}</td>
+                    <td>{{ r.description ?: '—' }}</td>
+                    <td><small>{{ r.permissions|join(', ') }}</small></td>
+                    <td class="text-nowrap">
+                        <a href="{{ path('app_role_edit', {id: r.id}) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil me-1"></i>Modifier</a>
+                        <form method="post" action="{{ path('app_role_delete', {id: r.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ r.id) }}">
+                            <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-trash me-1"></i>Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="4" class="empty-state">Aucun rôle enregistré.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

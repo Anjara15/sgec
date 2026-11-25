@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion | SGEC{% endblock %}
+
+{% block body %}
+<main class="login-page">
+    <section class="login-card">
+        <div class="text-center mb-4">
+            <img src="{{ asset('uploads/pieces_jointes/logo.jpeg') }}" alt="Logo SGEC" class="login-logo">
+            <p class="login-eyebrow">Gestion du courrier</p>
+            <h1 class="login-title">Bienvenue sur SGEC</h1>
+            <p class="muted mb-0">Connectez-vous pour accéder à votre espace de travail.</p>
+        </div>
+
+        {% if error %}
+            <div class="alert alert-danger" role="alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        {% endif %}
+
+        <form method="post">
+            <div class="mb-3">
+                <label class="form-label" for="username">Adresse e-mail</label>
+                <input type="email" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="username" required autofocus>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="password">Mot de passe</label>
+                <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required>
+            </div>
+            <div class="form-check mb-4">
+                <input class="form-check-input" type="checkbox" name="_remember_me" id="remember_me">
+                <label class="form-check-label" for="remember_me">Se souvenir de moi</label>
+            </div>
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            <button class="btn btn-primary w-100 py-2" type="submit">Se connecter</button>
+        </form>
+
+        <p class="text-center mt-4 mb-0 login-footer">
+            Vous n’avez pas de compte ? <a href="{{ path('app_register') }}">Créer un compte</a>
+        </p>
+    </section>
+</main>
+{% endblock %}

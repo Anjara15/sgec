@@ -1,0 +1,27 @@
+{% extends 'layouts/app.html.twig' %}
+{% set pageHeading = 'Notifications' %}
+{% block title %}Notifications | SGEC{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <h1 class="page-title">Notifications</h1>
+        <p class="muted mb-0">{{ unreadCount }} non lue(s)</p>
+    </div>
+</div>
+<div class="panel">
+    <div class="list-group list-group-flush">
+        {% for n in notifications %}
+            <a href="{{ path('app_notification_read', {id: n.id}) }}"
+               class="notification-item list-group-item list-group-item-action {% if not n.lue %}notification-unread{% endif %}">
+                <div class="d-flex justify-content-between align-items-start gap-3">
+                    <span class="fw-semibold">{{ n.typeEvenement }}</span>
+                    <small class="muted">{{ n.dateCreation|date('d/m/Y H:i') }}</small>
+                </div>
+                <div class="mt-1">{{ n.message }}</div>
+            </a>
+        {% else %}
+            <div class="empty-state">Aucune notification à afficher.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
